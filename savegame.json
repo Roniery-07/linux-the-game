@@ -1,0 +1,1669 @@
+{
+  "fs": {
+    "root": {
+      "name": "",
+      "is_directory": true,
+      "owner": "root",
+      "group": "root",
+      "mode": 493,
+      "mtime": 1794278042.2967923,
+      "children": {
+        "bin": {
+          "name": "bin",
+          "is_directory": true,
+          "owner": "root",
+          "group": "root",
+          "mode": 493,
+          "mtime": 1794278042.296856,
+          "children": {}
+        },
+        "boot": {
+          "name": "boot",
+          "is_directory": true,
+          "owner": "root",
+          "group": "root",
+          "mode": 493,
+          "mtime": 1794278042.2968724,
+          "children": {}
+        },
+        "dev": {
+          "name": "dev",
+          "is_directory": true,
+          "owner": "root",
+          "group": "root",
+          "mode": 493,
+          "mtime": 1794278042.2968833,
+          "children": {
+            "sda1": {
+              "name": "sda1",
+              "is_directory": false,
+              "owner": "root",
+              "group": "root",
+              "mode": 420,
+              "mtime": 1794278042.296996,
+              "content": "",
+              "is_tarball": false,
+              "size_bytes": 0
+            },
+            "sda2": {
+              "name": "sda2",
+              "is_directory": false,
+              "owner": "root",
+              "group": "root",
+              "mode": 420,
+              "mtime": 1794278042.2970173,
+              "content": "",
+              "is_tarball": false,
+              "size_bytes": 0
+            },
+            "sda3": {
+              "name": "sda3",
+              "is_directory": false,
+              "owner": "root",
+              "group": "root",
+              "mode": 420,
+              "mtime": 1794278042.297031,
+              "content": "",
+              "is_tarball": false,
+              "size_bytes": 0
+            }
+          }
+        },
+        "etc": {
+          "name": "etc",
+          "is_directory": true,
+          "owner": "root",
+          "group": "root",
+          "mode": 493,
+          "mtime": 1794278042.2968924,
+          "children": {
+            "passwd": {
+              "name": "passwd",
+              "is_directory": false,
+              "owner": "root",
+              "group": "root",
+              "mode": 420,
+              "mtime": 1794279330.4707541,
+              "content": "root:x:0:0:root:/root:/bin/bash\nlfs:x:1000:1000:lfs:/home/lfs:/bin/bash\n",
+              "is_tarball": false,
+              "size_bytes": 72
+            },
+            "group": {
+              "name": "group",
+              "is_directory": false,
+              "owner": "root",
+              "group": "root",
+              "mode": 420,
+              "mtime": 1794279210.5633512,
+              "content": "root:x:0:\nlfs:x:1000:\n",
+              "is_tarball": false,
+              "size_bytes": 22
+            }
+          }
+        },
+        "home": {
+          "name": "home",
+          "is_directory": true,
+          "owner": "root",
+          "group": "root",
+          "mode": 493,
+          "mtime": 1794278042.2969003,
+          "children": {
+            "lfs": {
+              "name": "lfs",
+              "is_directory": true,
+              "owner": "lfs",
+              "group": "lfs",
+              "mode": 493,
+              "mtime": 1794279330.47078,
+              "children": {}
+            }
+          }
+        },
+        "lib": {
+          "name": "lib",
+          "is_directory": true,
+          "owner": "root",
+          "group": "root",
+          "mode": 493,
+          "mtime": 1794278042.2969074,
+          "children": {}
+        },
+        "mnt": {
+          "name": "mnt",
+          "is_directory": true,
+          "owner": "root",
+          "group": "root",
+          "mode": 493,
+          "mtime": 1794278042.2969143,
+          "children": {
+            "lfs": {
+              "name": "lfs",
+              "is_directory": true,
+              "owner": "root",
+              "group": "root",
+              "mode": 493,
+              "mtime": 1794278666.8833692,
+              "children": {
+                "sources": {
+                  "name": "sources",
+                  "is_directory": true,
+                  "owner": "lfs",
+                  "group": "lfs",
+                  "mode": 1023,
+                  "mtime": 1794278832.3670819,
+                  "children": {
+                    "acl-2.4.0.tar.xz": {
+                      "name": "acl-2.4.0.tar.xz",
+                      "is_directory": false,
+                      "owner": "root",
+                      "group": "root",
+                      "mode": 420,
+                      "mtime": 1794278971.611212,
+                      "content": "# Tarball binário simulado para Acl 2.4.0\n",
+                      "is_tarball": false,
+                      "size_bytes": 43
+                    },
+                    "attr-2.6.0.tar.gz": {
+                      "name": "attr-2.6.0.tar.gz",
+                      "is_directory": false,
+                      "owner": "root",
+                      "group": "root",
+                      "mode": 420,
+                      "mtime": 1794278971.6112497,
+                      "content": "# Tarball binário simulado para Attr 2.6.0\n",
+                      "is_tarball": false,
+                      "size_bytes": 44
+                    },
+                    "autoconf-2.73.tar.xz": {
+                      "name": "autoconf-2.73.tar.xz",
+                      "is_directory": false,
+                      "owner": "root",
+                      "group": "root",
+                      "mode": 420,
+                      "mtime": 1794278971.611275,
+                      "content": "# Tarball binário simulado para Autoconf 2.73\n",
+                      "is_tarball": false,
+                      "size_bytes": 47
+                    },
+                    "automake-1.18.1.tar.xz": {
+                      "name": "automake-1.18.1.tar.xz",
+                      "is_directory": false,
+                      "owner": "root",
+                      "group": "root",
+                      "mode": 420,
+                      "mtime": 1794278971.6112967,
+                      "content": "# Tarball binário simulado para Automake 1.18.1\n",
+                      "is_tarball": false,
+                      "size_bytes": 49
+                    },
+                    "bash-5.3.tar.gz": {
+                      "name": "bash-5.3.tar.gz",
+                      "is_directory": false,
+                      "owner": "root",
+                      "group": "root",
+                      "mode": 420,
+                      "mtime": 1794278971.6113179,
+                      "content": "# Tarball binário simulado para Bash 5.3\n",
+                      "is_tarball": false,
+                      "size_bytes": 42
+                    },
+                    "bc-7.0.3.tar.xz": {
+                      "name": "bc-7.0.3.tar.xz",
+                      "is_directory": false,
+                      "owner": "root",
+                      "group": "root",
+                      "mode": 420,
+                      "mtime": 1794278971.6113374,
+                      "content": "# Tarball binário simulado para Bc 7.0.3\n",
+                      "is_tarball": false,
+                      "size_bytes": 42
+                    },
+                    "binutils-2.47.tar.xz": {
+                      "name": "binutils-2.47.tar.xz",
+                      "is_directory": false,
+                      "owner": "root",
+                      "group": "root",
+                      "mode": 420,
+                      "mtime": 1794278971.6113598,
+                      "content": "# Tarball binário simulado para Binutils 2.47\n",
+                      "is_tarball": false,
+                      "size_bytes": 47
+                    },
+                    "bison-3.8.2.tar.xz": {
+                      "name": "bison-3.8.2.tar.xz",
+                      "is_directory": false,
+                      "owner": "root",
+                      "group": "root",
+                      "mode": 420,
+                      "mtime": 1794278971.6113806,
+                      "content": "# Tarball binário simulado para Bison 3.8.2\n",
+                      "is_tarball": false,
+                      "size_bytes": 45
+                    },
+                    "bzip2-1.0.8.tar.gz": {
+                      "name": "bzip2-1.0.8.tar.gz",
+                      "is_directory": false,
+                      "owner": "root",
+                      "group": "root",
+                      "mode": 420,
+                      "mtime": 1794278971.6114,
+                      "content": "# Tarball binário simulado para Bzip2 1.0.8\n",
+                      "is_tarball": false,
+                      "size_bytes": 45
+                    },
+                    "coreutils-9.11.tar.xz": {
+                      "name": "coreutils-9.11.tar.xz",
+                      "is_directory": false,
+                      "owner": "root",
+                      "group": "root",
+                      "mode": 420,
+                      "mtime": 1794278971.611419,
+                      "content": "# Tarball binário simulado para Coreutils 9.11\n",
+                      "is_tarball": false,
+                      "size_bytes": 48
+                    },
+                    "dejagnu-1.6.3.tar.gz": {
+                      "name": "dejagnu-1.6.3.tar.gz",
+                      "is_directory": false,
+                      "owner": "root",
+                      "group": "root",
+                      "mode": 420,
+                      "mtime": 1794278971.611438,
+                      "content": "# Tarball binário simulado para DejaGNU 1.6.3\n",
+                      "is_tarball": false,
+                      "size_bytes": 47
+                    },
+                    "diffutils-3.12.tar.xz": {
+                      "name": "diffutils-3.12.tar.xz",
+                      "is_directory": false,
+                      "owner": "root",
+                      "group": "root",
+                      "mode": 420,
+                      "mtime": 1794278971.6114578,
+                      "content": "# Tarball binário simulado para Diffutils 3.12\n",
+                      "is_tarball": false,
+                      "size_bytes": 48
+                    },
+                    "e2fsprogs-1.47.4.tar.gz": {
+                      "name": "e2fsprogs-1.47.4.tar.gz",
+                      "is_directory": false,
+                      "owner": "root",
+                      "group": "root",
+                      "mode": 420,
+                      "mtime": 1794278971.6114783,
+                      "content": "# Tarball binário simulado para E2fsprogs 1.47.4\n",
+                      "is_tarball": false,
+                      "size_bytes": 50
+                    },
+                    "elfutils-0.195.tar.bz2": {
+                      "name": "elfutils-0.195.tar.bz2",
+                      "is_directory": false,
+                      "owner": "root",
+                      "group": "root",
+                      "mode": 420,
+                      "mtime": 1794278971.6114979,
+                      "content": "# Tarball binário simulado para Elfutils 0.195\n",
+                      "is_tarball": false,
+                      "size_bytes": 48
+                    },
+                    "expat-2.8.3.tar.xz": {
+                      "name": "expat-2.8.3.tar.xz",
+                      "is_directory": false,
+                      "owner": "root",
+                      "group": "root",
+                      "mode": 420,
+                      "mtime": 1794278971.611517,
+                      "content": "# Tarball binário simulado para Expat 2.8.3\n",
+                      "is_tarball": false,
+                      "size_bytes": 45
+                    },
+                    "expect5.45.4.tar.gz": {
+                      "name": "expect5.45.4.tar.gz",
+                      "is_directory": false,
+                      "owner": "root",
+                      "group": "root",
+                      "mode": 420,
+                      "mtime": 1794278971.6115355,
+                      "content": "# Tarball binário simulado para Expect 5.45.4\n",
+                      "is_tarball": false,
+                      "size_bytes": 47
+                    },
+                    "file-5.48.tar.gz": {
+                      "name": "file-5.48.tar.gz",
+                      "is_directory": false,
+                      "owner": "root",
+                      "group": "root",
+                      "mode": 420,
+                      "mtime": 1794278971.6115541,
+                      "content": "# Tarball binário simulado para File 5.48\n",
+                      "is_tarball": false,
+                      "size_bytes": 43
+                    },
+                    "findutils-4.11.0.tar.xz": {
+                      "name": "findutils-4.11.0.tar.xz",
+                      "is_directory": false,
+                      "owner": "root",
+                      "group": "root",
+                      "mode": 420,
+                      "mtime": 1794278971.6115732,
+                      "content": "# Tarball binário simulado para Findutils 4.11.0\n",
+                      "is_tarball": false,
+                      "size_bytes": 50
+                    },
+                    "flex-2.6.4.tar.gz": {
+                      "name": "flex-2.6.4.tar.gz",
+                      "is_directory": false,
+                      "owner": "root",
+                      "group": "root",
+                      "mode": 420,
+                      "mtime": 1794278971.6115925,
+                      "content": "# Tarball binário simulado para Flex 2.6.4\n",
+                      "is_tarball": false,
+                      "size_bytes": 44
+                    },
+                    "flit_core-4.0.2.tar.gz": {
+                      "name": "flit_core-4.0.2.tar.gz",
+                      "is_directory": false,
+                      "owner": "root",
+                      "group": "root",
+                      "mode": 420,
+                      "mtime": 1794278971.6116111,
+                      "content": "# Tarball binário simulado para Flit 4.0.2\n",
+                      "is_tarball": false,
+                      "size_bytes": 44
+                    },
+                    "gawk-5.4.1.tar.xz": {
+                      "name": "gawk-5.4.1.tar.xz",
+                      "is_directory": false,
+                      "owner": "root",
+                      "group": "root",
+                      "mode": 420,
+                      "mtime": 1794278971.61163,
+                      "content": "# Tarball binário simulado para Gawk 5.4.1\n",
+                      "is_tarball": false,
+                      "size_bytes": 44
+                    },
+                    "gcc-16.2.0.tar.xz": {
+                      "name": "gcc-16.2.0.tar.xz",
+                      "is_directory": false,
+                      "owner": "root",
+                      "group": "root",
+                      "mode": 420,
+                      "mtime": 1794278971.6116498,
+                      "content": "# Tarball binário simulado para GCC 16.2.0\n",
+                      "is_tarball": false,
+                      "size_bytes": 44
+                    },
+                    "gdbm-1.26.tar.gz": {
+                      "name": "gdbm-1.26.tar.gz",
+                      "is_directory": false,
+                      "owner": "root",
+                      "group": "root",
+                      "mode": 420,
+                      "mtime": 1794278971.6116705,
+                      "content": "# Tarball binário simulado para GDBM 1.26\n",
+                      "is_tarball": false,
+                      "size_bytes": 43
+                    },
+                    "gettext-1.0.tar.xz": {
+                      "name": "gettext-1.0.tar.xz",
+                      "is_directory": false,
+                      "owner": "root",
+                      "group": "root",
+                      "mode": 420,
+                      "mtime": 1794278971.6116889,
+                      "content": "# Tarball binário simulado para Gettext 1.0\n",
+                      "is_tarball": false,
+                      "size_bytes": 45
+                    },
+                    "glibc-2.44.tar.xz": {
+                      "name": "glibc-2.44.tar.xz",
+                      "is_directory": false,
+                      "owner": "root",
+                      "group": "root",
+                      "mode": 420,
+                      "mtime": 1794278971.611707,
+                      "content": "# Tarball binário simulado para Glibc 2.44\n",
+                      "is_tarball": false,
+                      "size_bytes": 44
+                    },
+                    "gmp-6.3.0.tar.xz": {
+                      "name": "gmp-6.3.0.tar.xz",
+                      "is_directory": false,
+                      "owner": "root",
+                      "group": "root",
+                      "mode": 420,
+                      "mtime": 1794278971.6117253,
+                      "content": "# Tarball binário simulado para GMP 6.3.0\n",
+                      "is_tarball": false,
+                      "size_bytes": 43
+                    },
+                    "gperf-3.3.tar.gz": {
+                      "name": "gperf-3.3.tar.gz",
+                      "is_directory": false,
+                      "owner": "root",
+                      "group": "root",
+                      "mode": 420,
+                      "mtime": 1794278971.6117437,
+                      "content": "# Tarball binário simulado para Gperf 3.3\n",
+                      "is_tarball": false,
+                      "size_bytes": 43
+                    },
+                    "grep-3.12.tar.xz": {
+                      "name": "grep-3.12.tar.xz",
+                      "is_directory": false,
+                      "owner": "root",
+                      "group": "root",
+                      "mode": 420,
+                      "mtime": 1794278971.6117616,
+                      "content": "# Tarball binário simulado para Grep 3.12\n",
+                      "is_tarball": false,
+                      "size_bytes": 43
+                    },
+                    "groff-1.24.1.tar.gz": {
+                      "name": "groff-1.24.1.tar.gz",
+                      "is_directory": false,
+                      "owner": "root",
+                      "group": "root",
+                      "mode": 420,
+                      "mtime": 1794278971.61178,
+                      "content": "# Tarball binário simulado para Groff 1.24.1\n",
+                      "is_tarball": false,
+                      "size_bytes": 46
+                    },
+                    "grub-2.14.tar.xz": {
+                      "name": "grub-2.14.tar.xz",
+                      "is_directory": false,
+                      "owner": "root",
+                      "group": "root",
+                      "mode": 420,
+                      "mtime": 1794278971.6117976,
+                      "content": "# Tarball binário simulado para GRUB 2.14\n",
+                      "is_tarball": false,
+                      "size_bytes": 43
+                    },
+                    "gzip-1.14.tar.xz": {
+                      "name": "gzip-1.14.tar.xz",
+                      "is_directory": false,
+                      "owner": "root",
+                      "group": "root",
+                      "mode": 420,
+                      "mtime": 1794278971.6118155,
+                      "content": "# Tarball binário simulado para Gzip 1.14\n",
+                      "is_tarball": false,
+                      "size_bytes": 43
+                    },
+                    "iana-etc-20260805.tar.gz": {
+                      "name": "iana-etc-20260805.tar.gz",
+                      "is_directory": false,
+                      "owner": "root",
+                      "group": "root",
+                      "mode": 420,
+                      "mtime": 1794278971.6118343,
+                      "content": "# Tarball binário simulado para Iana 20260805\n",
+                      "is_tarball": false,
+                      "size_bytes": 47
+                    },
+                    "inetutils-2.8.tar.gz": {
+                      "name": "inetutils-2.8.tar.gz",
+                      "is_directory": false,
+                      "owner": "root",
+                      "group": "root",
+                      "mode": 420,
+                      "mtime": 1794278971.6118531,
+                      "content": "# Tarball binário simulado para Inetutils 2.8\n",
+                      "is_tarball": false,
+                      "size_bytes": 47
+                    },
+                    "iproute2-7.1.0.tar.xz": {
+                      "name": "iproute2-7.1.0.tar.xz",
+                      "is_directory": false,
+                      "owner": "root",
+                      "group": "root",
+                      "mode": 420,
+                      "mtime": 1794278971.6118715,
+                      "content": "# Tarball binário simulado para IPRoute2 7.1.0\n",
+                      "is_tarball": false,
+                      "size_bytes": 48
+                    },
+                    "jinja2-3.1.6.tar.gz": {
+                      "name": "jinja2-3.1.6.tar.gz",
+                      "is_directory": false,
+                      "owner": "root",
+                      "group": "root",
+                      "mode": 420,
+                      "mtime": 1794278971.6118896,
+                      "content": "# Tarball binário simulado para Jinja2 3.1.6\n",
+                      "is_tarball": false,
+                      "size_bytes": 46
+                    },
+                    "kbd-2.10.0.tar.xz": {
+                      "name": "kbd-2.10.0.tar.xz",
+                      "is_directory": false,
+                      "owner": "root",
+                      "group": "root",
+                      "mode": 420,
+                      "mtime": 1794278971.611908,
+                      "content": "# Tarball binário simulado para Kbd 2.10.0\n",
+                      "is_tarball": false,
+                      "size_bytes": 44
+                    },
+                    "kmod-34.2.tar.xz": {
+                      "name": "kmod-34.2.tar.xz",
+                      "is_directory": false,
+                      "owner": "root",
+                      "group": "root",
+                      "mode": 420,
+                      "mtime": 1794278971.6119258,
+                      "content": "# Tarball binário simulado para Kmod 34.2\n",
+                      "is_tarball": false,
+                      "size_bytes": 43
+                    },
+                    "less-704.tar.gz": {
+                      "name": "less-704.tar.gz",
+                      "is_directory": false,
+                      "owner": "root",
+                      "group": "root",
+                      "mode": 420,
+                      "mtime": 1794278971.6119442,
+                      "content": "# Tarball binário simulado para Less 704\n",
+                      "is_tarball": false,
+                      "size_bytes": 42
+                    },
+                    "lfs-bootscripts-20250827.tar.xz": {
+                      "name": "lfs-bootscripts-20250827.tar.xz",
+                      "is_directory": false,
+                      "owner": "root",
+                      "group": "root",
+                      "mode": 420,
+                      "mtime": 1794278971.611963,
+                      "content": "# Tarball binário simulado para LFS 20250827\n",
+                      "is_tarball": false,
+                      "size_bytes": 46
+                    },
+                    "libcap-2.78.tar.xz": {
+                      "name": "libcap-2.78.tar.xz",
+                      "is_directory": false,
+                      "owner": "root",
+                      "group": "root",
+                      "mode": 420,
+                      "mtime": 1794278971.6119814,
+                      "content": "# Tarball binário simulado para Libcap 2.78\n",
+                      "is_tarball": false,
+                      "size_bytes": 45
+                    },
+                    "libffi-3.8.0.tar.gz": {
+                      "name": "libffi-3.8.0.tar.gz",
+                      "is_directory": false,
+                      "owner": "root",
+                      "group": "root",
+                      "mode": 420,
+                      "mtime": 1794278971.612,
+                      "content": "# Tarball binário simulado para Libffi 3.8.0\n",
+                      "is_tarball": false,
+                      "size_bytes": 46
+                    },
+                    "libpipeline-1.5.8.tar.gz": {
+                      "name": "libpipeline-1.5.8.tar.gz",
+                      "is_directory": false,
+                      "owner": "root",
+                      "group": "root",
+                      "mode": 420,
+                      "mtime": 1794278971.6120195,
+                      "content": "# Tarball binário simulado para Libpipeline 1.5.8\n",
+                      "is_tarball": false,
+                      "size_bytes": 51
+                    },
+                    "libtool-2.6.2.tar.xz": {
+                      "name": "libtool-2.6.2.tar.xz",
+                      "is_directory": false,
+                      "owner": "root",
+                      "group": "root",
+                      "mode": 420,
+                      "mtime": 1794278971.6120384,
+                      "content": "# Tarball binário simulado para Libtool 2.6.2\n",
+                      "is_tarball": false,
+                      "size_bytes": 47
+                    },
+                    "libxcrypt-4.5.2.tar.xz": {
+                      "name": "libxcrypt-4.5.2.tar.xz",
+                      "is_directory": false,
+                      "owner": "root",
+                      "group": "root",
+                      "mode": 420,
+                      "mtime": 1794278971.6120598,
+                      "content": "# Tarball binário simulado para Libxcrypt 4.5.2\n",
+                      "is_tarball": false,
+                      "size_bytes": 49
+                    },
+                    "linux-7.1.8.tar.xz": {
+                      "name": "linux-7.1.8.tar.xz",
+                      "is_directory": false,
+                      "owner": "root",
+                      "group": "root",
+                      "mode": 420,
+                      "mtime": 1794278971.6120791,
+                      "content": "# Tarball binário simulado para Linux 7.1.8\n",
+                      "is_tarball": false,
+                      "size_bytes": 45
+                    },
+                    "lz4-1.10.0.tar.gz": {
+                      "name": "lz4-1.10.0.tar.gz",
+                      "is_directory": false,
+                      "owner": "root",
+                      "group": "root",
+                      "mode": 420,
+                      "mtime": 1794278971.6120973,
+                      "content": "# Tarball binário simulado para Lz4 1.10.0\n",
+                      "is_tarball": false,
+                      "size_bytes": 44
+                    },
+                    "m4-1.4.21.tar.xz": {
+                      "name": "m4-1.4.21.tar.xz",
+                      "is_directory": false,
+                      "owner": "root",
+                      "group": "root",
+                      "mode": 420,
+                      "mtime": 1794278971.6121156,
+                      "content": "# Tarball binário simulado para M4 1.4.21\n",
+                      "is_tarball": false,
+                      "size_bytes": 43
+                    },
+                    "make-4.4.1.tar.gz": {
+                      "name": "make-4.4.1.tar.gz",
+                      "is_directory": false,
+                      "owner": "root",
+                      "group": "root",
+                      "mode": 420,
+                      "mtime": 1794278971.6121342,
+                      "content": "# Tarball binário simulado para Make 4.4.1\n",
+                      "is_tarball": false,
+                      "size_bytes": 44
+                    },
+                    "man-db-2.13.1.tar.xz": {
+                      "name": "man-db-2.13.1.tar.xz",
+                      "is_directory": false,
+                      "owner": "root",
+                      "group": "root",
+                      "mode": 420,
+                      "mtime": 1794278971.6121523,
+                      "content": "# Tarball binário simulado para Man 2.13.1\n",
+                      "is_tarball": false,
+                      "size_bytes": 44
+                    },
+                    "man-pages-6.18.tar.xz": {
+                      "name": "man-pages-6.18.tar.xz",
+                      "is_directory": false,
+                      "owner": "root",
+                      "group": "root",
+                      "mode": 420,
+                      "mtime": 1794278971.612187,
+                      "content": "# Tarball binário simulado para Man 6.18\n",
+                      "is_tarball": false,
+                      "size_bytes": 42
+                    },
+                    "markupsafe-3.0.3.tar.gz": {
+                      "name": "markupsafe-3.0.3.tar.gz",
+                      "is_directory": false,
+                      "owner": "root",
+                      "group": "root",
+                      "mode": 420,
+                      "mtime": 1794278971.6122062,
+                      "content": "# Tarball binário simulado para MarkupSafe 3.0.3\n",
+                      "is_tarball": false,
+                      "size_bytes": 50
+                    },
+                    "meson-1.12.0.tar.gz": {
+                      "name": "meson-1.12.0.tar.gz",
+                      "is_directory": false,
+                      "owner": "root",
+                      "group": "root",
+                      "mode": 420,
+                      "mtime": 1794278971.6122253,
+                      "content": "# Tarball binário simulado para Meson 1.12.0\n",
+                      "is_tarball": false,
+                      "size_bytes": 46
+                    },
+                    "mpc-1.4.1.tar.xz": {
+                      "name": "mpc-1.4.1.tar.xz",
+                      "is_directory": false,
+                      "owner": "root",
+                      "group": "root",
+                      "mode": 420,
+                      "mtime": 1794278971.6122448,
+                      "content": "# Tarball binário simulado para MPC 1.4.1\n",
+                      "is_tarball": false,
+                      "size_bytes": 43
+                    },
+                    "mpdecimal-4.0.1.tar.gz": {
+                      "name": "mpdecimal-4.0.1.tar.gz",
+                      "is_directory": false,
+                      "owner": "root",
+                      "group": "root",
+                      "mode": 420,
+                      "mtime": 1794278971.612264,
+                      "content": "# Tarball binário simulado para mpdecimal 4.0.1\n",
+                      "is_tarball": false,
+                      "size_bytes": 49
+                    },
+                    "mpfr-4.2.2.tar.xz": {
+                      "name": "mpfr-4.2.2.tar.xz",
+                      "is_directory": false,
+                      "owner": "root",
+                      "group": "root",
+                      "mode": 420,
+                      "mtime": 1794278971.612283,
+                      "content": "# Tarball binário simulado para MPFR 4.2.2\n",
+                      "is_tarball": false,
+                      "size_bytes": 44
+                    },
+                    "ncurses-6.6.tar.gz": {
+                      "name": "ncurses-6.6.tar.gz",
+                      "is_directory": false,
+                      "owner": "root",
+                      "group": "root",
+                      "mode": 420,
+                      "mtime": 1794278971.6123016,
+                      "content": "# Tarball binário simulado para Ncurses 6.6\n",
+                      "is_tarball": false,
+                      "size_bytes": 45
+                    },
+                    "ninja-1.13.2.tar.gz": {
+                      "name": "ninja-1.13.2.tar.gz",
+                      "is_directory": false,
+                      "owner": "root",
+                      "group": "root",
+                      "mode": 420,
+                      "mtime": 1794278971.6123202,
+                      "content": "# Tarball binário simulado para Ninja 1.13.2\n",
+                      "is_tarball": false,
+                      "size_bytes": 46
+                    },
+                    "openssl-4.0.1.tar.gz": {
+                      "name": "openssl-4.0.1.tar.gz",
+                      "is_directory": false,
+                      "owner": "root",
+                      "group": "root",
+                      "mode": 420,
+                      "mtime": 1794278971.6123393,
+                      "content": "# Tarball binário simulado para OpenSSL 4.0.1\n",
+                      "is_tarball": false,
+                      "size_bytes": 47
+                    },
+                    "packaging-26.3.tar.gz": {
+                      "name": "packaging-26.3.tar.gz",
+                      "is_directory": false,
+                      "owner": "root",
+                      "group": "root",
+                      "mode": 420,
+                      "mtime": 1794278971.6123583,
+                      "content": "# Tarball binário simulado para Packaging 26.3\n",
+                      "is_tarball": false,
+                      "size_bytes": 48
+                    },
+                    "patch-2.8.tar.xz": {
+                      "name": "patch-2.8.tar.xz",
+                      "is_directory": false,
+                      "owner": "root",
+                      "group": "root",
+                      "mode": 420,
+                      "mtime": 1794278971.612377,
+                      "content": "# Tarball binário simulado para Patch 2.8\n",
+                      "is_tarball": false,
+                      "size_bytes": 43
+                    },
+                    "pcre2-10.47.tar.bz2": {
+                      "name": "pcre2-10.47.tar.bz2",
+                      "is_directory": false,
+                      "owner": "root",
+                      "group": "root",
+                      "mode": 420,
+                      "mtime": 1794278971.6123962,
+                      "content": "# Tarball binário simulado para Pcre2 10.47\n",
+                      "is_tarball": false,
+                      "size_bytes": 45
+                    },
+                    "perl-5.44.0.tar.xz": {
+                      "name": "perl-5.44.0.tar.xz",
+                      "is_directory": false,
+                      "owner": "root",
+                      "group": "root",
+                      "mode": 420,
+                      "mtime": 1794278971.6124153,
+                      "content": "# Tarball binário simulado para Perl 5.44.0\n",
+                      "is_tarball": false,
+                      "size_bytes": 45
+                    },
+                    "pkgconf-3.0.5.tar.xz": {
+                      "name": "pkgconf-3.0.5.tar.xz",
+                      "is_directory": false,
+                      "owner": "root",
+                      "group": "root",
+                      "mode": 420,
+                      "mtime": 1794278971.612434,
+                      "content": "# Tarball binário simulado para Pkgconf 3.0.5\n",
+                      "is_tarball": false,
+                      "size_bytes": 47
+                    },
+                    "procps-ng-4.0.7.tar.xz": {
+                      "name": "procps-ng-4.0.7.tar.xz",
+                      "is_directory": false,
+                      "owner": "root",
+                      "group": "root",
+                      "mode": 420,
+                      "mtime": 1794278971.6124525,
+                      "content": "# Tarball binário simulado para Procps 4.0.7\n",
+                      "is_tarball": false,
+                      "size_bytes": 46
+                    },
+                    "psmisc-23.7.tar.xz": {
+                      "name": "psmisc-23.7.tar.xz",
+                      "is_directory": false,
+                      "owner": "root",
+                      "group": "root",
+                      "mode": 420,
+                      "mtime": 1794278971.612471,
+                      "content": "# Tarball binário simulado para Psmisc 23.7\n",
+                      "is_tarball": false,
+                      "size_bytes": 45
+                    },
+                    "Python-3.14.7.tar.xz": {
+                      "name": "Python-3.14.7.tar.xz",
+                      "is_directory": false,
+                      "owner": "root",
+                      "group": "root",
+                      "mode": 420,
+                      "mtime": 1794278971.6124892,
+                      "content": "# Tarball binário simulado para Python 3.14.7\n",
+                      "is_tarball": false,
+                      "size_bytes": 47
+                    },
+                    "python-3.14.7-docs-html.tar.bz2": {
+                      "name": "python-3.14.7-docs-html.tar.bz2",
+                      "is_directory": false,
+                      "owner": "root",
+                      "group": "root",
+                      "mode": 420,
+                      "mtime": 1794278971.6125083,
+                      "content": "# Tarball binário simulado para Documentação do Python 3.14.7\n",
+                      "is_tarball": false,
+                      "size_bytes": 65
+                    },
+                    "readline-8.3.tar.gz": {
+                      "name": "readline-8.3.tar.gz",
+                      "is_directory": false,
+                      "owner": "root",
+                      "group": "root",
+                      "mode": 420,
+                      "mtime": 1794278971.6125276,
+                      "content": "# Tarball binário simulado para Readline 8.3\n",
+                      "is_tarball": false,
+                      "size_bytes": 46
+                    },
+                    "sed-4.10.tar.xz": {
+                      "name": "sed-4.10.tar.xz",
+                      "is_directory": false,
+                      "owner": "root",
+                      "group": "root",
+                      "mode": 420,
+                      "mtime": 1794278971.612547,
+                      "content": "# Tarball binário simulado para Sed 4.10\n",
+                      "is_tarball": false,
+                      "size_bytes": 42
+                    },
+                    "setuptools-84.0.0.tar.gz": {
+                      "name": "setuptools-84.0.0.tar.gz",
+                      "is_directory": false,
+                      "owner": "root",
+                      "group": "root",
+                      "mode": 420,
+                      "mtime": 1794278971.6125658,
+                      "content": "# Tarball binário simulado para Setuptools 84.0.0\n",
+                      "is_tarball": false,
+                      "size_bytes": 51
+                    },
+                    "shadow-4.20.2.tar.xz": {
+                      "name": "shadow-4.20.2.tar.xz",
+                      "is_directory": false,
+                      "owner": "root",
+                      "group": "root",
+                      "mode": 420,
+                      "mtime": 1794278971.612585,
+                      "content": "# Tarball binário simulado para Shadow 4.20.2\n",
+                      "is_tarball": false,
+                      "size_bytes": 47
+                    },
+                    "sqlite-autoconf-3530400.tar.gz": {
+                      "name": "sqlite-autoconf-3530400.tar.gz",
+                      "is_directory": false,
+                      "owner": "root",
+                      "group": "root",
+                      "mode": 420,
+                      "mtime": 1794278971.6126041,
+                      "content": "# Tarball binário simulado para Sqlite 3530400\n",
+                      "is_tarball": false,
+                      "size_bytes": 48
+                    },
+                    "sqlite-doc-3530400.zip": {
+                      "name": "sqlite-doc-3530400.zip",
+                      "is_directory": false,
+                      "owner": "root",
+                      "group": "root",
+                      "mode": 420,
+                      "mtime": 1794278971.6126237,
+                      "content": "# Tarball binário simulado para Documentação do Sqlite 3530400\n",
+                      "is_tarball": false,
+                      "size_bytes": 66
+                    },
+                    "sysklogd-2.7.2.tar.gz": {
+                      "name": "sysklogd-2.7.2.tar.gz",
+                      "is_directory": false,
+                      "owner": "root",
+                      "group": "root",
+                      "mode": 420,
+                      "mtime": 1794278971.6126423,
+                      "content": "# Tarball binário simulado para Sysklogd 2.7.2\n",
+                      "is_tarball": false,
+                      "size_bytes": 48
+                    },
+                    "systemd-261.2.tar.gz": {
+                      "name": "systemd-261.2.tar.gz",
+                      "is_directory": false,
+                      "owner": "root",
+                      "group": "root",
+                      "mode": 420,
+                      "mtime": 1794278971.6126606,
+                      "content": "# Tarball binário simulado para Systemd 261.2\n",
+                      "is_tarball": false,
+                      "size_bytes": 47
+                    },
+                    "systemd-man-pages-261.2.tar.xz": {
+                      "name": "systemd-man-pages-261.2.tar.xz",
+                      "is_directory": false,
+                      "owner": "root",
+                      "group": "root",
+                      "mode": 420,
+                      "mtime": 1794278971.61268,
+                      "content": "# Tarball binário simulado para Páginas de Manual do Systemd 261.2\n",
+                      "is_tarball": false,
+                      "size_bytes": 69
+                    },
+                    "sysvinit-3.14.tar.xz": {
+                      "name": "sysvinit-3.14.tar.xz",
+                      "is_directory": false,
+                      "owner": "root",
+                      "group": "root",
+                      "mode": 420,
+                      "mtime": 1794278971.6126983,
+                      "content": "# Tarball binário simulado para SysVinit 3.14\n",
+                      "is_tarball": false,
+                      "size_bytes": 47
+                    },
+                    "tar-1.35.tar.xz": {
+                      "name": "tar-1.35.tar.xz",
+                      "is_directory": false,
+                      "owner": "root",
+                      "group": "root",
+                      "mode": 420,
+                      "mtime": 1794278971.6127176,
+                      "content": "# Tarball binário simulado para Tar 1.35\n",
+                      "is_tarball": false,
+                      "size_bytes": 42
+                    },
+                    "tcl8.6.18-src.tar.gz": {
+                      "name": "tcl8.6.18-src.tar.gz",
+                      "is_directory": false,
+                      "owner": "root",
+                      "group": "root",
+                      "mode": 420,
+                      "mtime": 1794278971.612736,
+                      "content": "# Tarball binário simulado para Tcl 8.6.18\n",
+                      "is_tarball": false,
+                      "size_bytes": 44
+                    },
+                    "tcl8.6.18-html.tar.gz": {
+                      "name": "tcl8.6.18-html.tar.gz",
+                      "is_directory": false,
+                      "owner": "root",
+                      "group": "root",
+                      "mode": 420,
+                      "mtime": 1794278971.612755,
+                      "content": "# Tarball binário simulado para Documentação do Tcl 8.6.18\n",
+                      "is_tarball": false,
+                      "size_bytes": 62
+                    },
+                    "texinfo-7.3.tar.xz": {
+                      "name": "texinfo-7.3.tar.xz",
+                      "is_directory": false,
+                      "owner": "root",
+                      "group": "root",
+                      "mode": 420,
+                      "mtime": 1794278971.6127737,
+                      "content": "# Tarball binário simulado para Texinfo 7.3\n",
+                      "is_tarball": false,
+                      "size_bytes": 45
+                    },
+                    "tzdata2026c.tar.gz": {
+                      "name": "tzdata2026c.tar.gz",
+                      "is_directory": false,
+                      "owner": "root",
+                      "group": "root",
+                      "mode": 420,
+                      "mtime": 1794278971.6127925,
+                      "content": "# Tarball binário simulado para Dados de Fuso Horário 2026c\n",
+                      "is_tarball": false,
+                      "size_bytes": 62
+                    },
+                    "udev-lfs-20230818.tar.xz": {
+                      "name": "udev-lfs-20230818.tar.xz",
+                      "is_directory": false,
+                      "owner": "root",
+                      "group": "root",
+                      "mode": 420,
+                      "mtime": 1794278971.6128116,
+                      "content": "# Tarball binário simulado para Tarball do Udev udev-lfs-20230818\n",
+                      "is_tarball": false,
+                      "size_bytes": 67
+                    },
+                    "util-linux-2.42.2.tar.xz": {
+                      "name": "util-linux-2.42.2.tar.xz",
+                      "is_directory": false,
+                      "owner": "root",
+                      "group": "root",
+                      "mode": 420,
+                      "mtime": 1794278971.61283,
+                      "content": "# Tarball binário simulado para Util 2.42.2\n",
+                      "is_tarball": false,
+                      "size_bytes": 45
+                    },
+                    "vim-9.2.1025.tar.gz": {
+                      "name": "vim-9.2.1025.tar.gz",
+                      "is_directory": false,
+                      "owner": "root",
+                      "group": "root",
+                      "mode": 420,
+                      "mtime": 1794278971.6128495,
+                      "content": "# Tarball binário simulado para Vim 9.2.1025\n",
+                      "is_tarball": false,
+                      "size_bytes": 46
+                    },
+                    "wheel-0.48.0.tar.gz": {
+                      "name": "wheel-0.48.0.tar.gz",
+                      "is_directory": false,
+                      "owner": "root",
+                      "group": "root",
+                      "mode": 420,
+                      "mtime": 1794278971.6128685,
+                      "content": "# Tarball binário simulado para Wheel 0.48.0\n",
+                      "is_tarball": false,
+                      "size_bytes": 46
+                    },
+                    "xz-5.8.3.tar.xz": {
+                      "name": "xz-5.8.3.tar.xz",
+                      "is_directory": false,
+                      "owner": "root",
+                      "group": "root",
+                      "mode": 420,
+                      "mtime": 1794278971.6128917,
+                      "content": "# Tarball binário simulado para Xz Utils 5.8.3\n",
+                      "is_tarball": false,
+                      "size_bytes": 48
+                    },
+                    "zlib-1.3.2.tar.gz": {
+                      "name": "zlib-1.3.2.tar.gz",
+                      "is_directory": false,
+                      "owner": "root",
+                      "group": "root",
+                      "mode": 420,
+                      "mtime": 1794278971.6129107,
+                      "content": "# Tarball binário simulado para Zlib 1.3.2\n",
+                      "is_tarball": false,
+                      "size_bytes": 44
+                    },
+                    "zstd-1.5.7.tar.gz": {
+                      "name": "zstd-1.5.7.tar.gz",
+                      "is_directory": false,
+                      "owner": "root",
+                      "group": "root",
+                      "mode": 420,
+                      "mtime": 1794278971.6129296,
+                      "content": "# Tarball binário simulado para Zstd 1.5.7\n",
+                      "is_tarball": false,
+                      "size_bytes": 44
+                    },
+                    "bzip2-1.0.8-install_docs-1.patch": {
+                      "name": "bzip2-1.0.8-install_docs-1.patch",
+                      "is_directory": false,
+                      "owner": "root",
+                      "group": "root",
+                      "mode": 420,
+                      "mtime": 1794278971.6129496,
+                      "content": "# Tarball binário simulado para Remendo da Documentação do Bzip2 \n",
+                      "is_tarball": false,
+                      "size_bytes": 69
+                    },
+                    "coreutils-9.11-i18n-1.patch": {
+                      "name": "coreutils-9.11-i18n-1.patch",
+                      "is_directory": false,
+                      "owner": "root",
+                      "group": "root",
+                      "mode": 420,
+                      "mtime": 1794278971.6129692,
+                      "content": "# Tarball binário simulado para Remendo de Correções de Internacionalização do Coreutils \n",
+                      "is_tarball": false,
+                      "size_bytes": 95
+                    },
+                    "expect-5.45.4-gcc15-1.patch": {
+                      "name": "expect-5.45.4-gcc15-1.patch",
+                      "is_directory": false,
+                      "owner": "root",
+                      "group": "root",
+                      "mode": 420,
+                      "mtime": 1794278971.6129887,
+                      "content": "# Tarball binário simulado para Remendo GCC15 do Expect \n",
+                      "is_tarball": false,
+                      "size_bytes": 58
+                    },
+                    "glibc-2.44-upstream_fixes-1.patch": {
+                      "name": "glibc-2.44-upstream_fixes-1.patch",
+                      "is_directory": false,
+                      "owner": "root",
+                      "group": "root",
+                      "mode": 420,
+                      "mtime": 1794278971.6130092,
+                      "content": "# Tarball binário simulado para Remendo de Correções de Fluxo de Desenvolvimento da Glibc \n",
+                      "is_tarball": false,
+                      "size_bytes": 94
+                    },
+                    "glibc-fhs-1.patch": {
+                      "name": "glibc-fhs-1.patch",
+                      "is_directory": false,
+                      "owner": "root",
+                      "group": "root",
+                      "mode": 420,
+                      "mtime": 1794278971.613029,
+                      "content": "# Tarball binário simulado para Remendo do FHS da Glibc \n",
+                      "is_tarball": false,
+                      "size_bytes": 58
+                    },
+                    "kbd-2.10.0-backspace-1.patch": {
+                      "name": "kbd-2.10.0-backspace-1.patch",
+                      "is_directory": false,
+                      "owner": "root",
+                      "group": "root",
+                      "mode": 420,
+                      "mtime": 1794278971.613048,
+                      "content": "# Tarball binário simulado para Remendo de Correção do Backspace/Delete do Kbd \n",
+                      "is_tarball": false,
+                      "size_bytes": 83
+                    },
+                    "Python-3.14.7-openssl_4-1.patch": {
+                      "name": "Python-3.14.7-openssl_4-1.patch",
+                      "is_directory": false,
+                      "owner": "root",
+                      "group": "root",
+                      "mode": 420,
+                      "mtime": 1794278971.613067,
+                      "content": "# Tarball binário simulado para Remendo Openssl4 do Python \n",
+                      "is_tarball": false,
+                      "size_bytes": 61
+                    },
+                    "sysvinit-3.14-consolidated-1.patch": {
+                      "name": "sysvinit-3.14-consolidated-1.patch",
+                      "is_directory": false,
+                      "owner": "root",
+                      "group": "root",
+                      "mode": 420,
+                      "mtime": 1794278971.6130862,
+                      "content": "# Tarball binário simulado para Remendo Consolidado do SysVinit \n",
+                      "is_tarball": false,
+                      "size_bytes": 66
+                    },
+                    "tar-1.35-acl_fix-1.patch": {
+                      "name": "tar-1.35-acl_fix-1.patch",
+                      "is_directory": false,
+                      "owner": "root",
+                      "group": "root",
+                      "mode": 420,
+                      "mtime": 1794278971.6131053,
+                      "content": "# Tarball binário simulado para Remendo de Fluxo de Desenvolvimento do Tar \n",
+                      "is_tarball": false,
+                      "size_bytes": 77
+                    },
+                    "md5sums": {
+                      "name": "md5sums",
+                      "is_directory": false,
+                      "owner": "root",
+                      "group": "root",
+                      "mode": 420,
+                      "mtime": 1794278971.613219,
+                      "content": "e289f370161698a96f50b2a3fdadf411  acl-2.4.0.tar.xz\n910a09c3ae0a211569d180586371cf7e  attr-2.6.0.tar.gz\n9cbad9a116ef845bafeed8e7bc771bf4  autoconf-2.73.tar.xz\ncea31dbf1120f890cbf2a3032cfb9a68  automake-1.18.1.tar.xz\n977c8c0c5ae6309191e7768e28ebc951  bash-5.3.tar.gz\nad4db5a0eb4fdbb3f6813be4b6b3da74  bc-7.0.3.tar.xz\nd772acfbd55a81644e9fe7b8189cd2a5  binutils-2.47.tar.xz\nc28f119f405a2304ff0a7ccdcc629713  bison-3.8.2.tar.xz\n67e051268d0c475ea773822f7500d0e5  bzip2-1.0.8.tar.gz\ne52e9857e4aa9ae38ef32f8ed6a27604  coreutils-9.11.tar.xz\n68c5208c58236eba447d7d6d1326b821  dejagnu-1.6.3.tar.gz\nd1b18b20868fb561f77861cd90b05de4  diffutils-3.12.tar.xz\n733a93bc688314834ff2d10530ff4dc4  e2fsprogs-1.47.4.tar.gz\n3e8ef51c43beceddbbb74879549cf72c  elfutils-0.195.tar.bz2\n1747f5a57b191f0373baeb5adc8078ca  expat-2.8.3.tar.xz\n00fce8de158422f5ccd2666512329bd2  expect5.45.4.tar.gz\n423686e97f731d8c24e9cd1a22b03dec  file-5.48.tar.gz\n512c6875ed84034dca240c4bc9380b96  findutils-4.11.0.tar.xz\n2882e3179748cc9f9c23ec593d6adc8d  flex-2.6.4.tar.gz\n89ebb783230fc8db6c1d2a39644b7085  flit_core-4.0.2.tar.gz\nd379c2110e7a3e15347dd5559a41ad64  gawk-5.4.1.tar.xz\n19b777fb19ea4982731392481306f0d3  gcc-16.2.0.tar.xz\naaa600665bc89e2febb3c7bd90679115  gdbm-1.26.tar.gz\ndc8b2911535929cec1e263706b0a13a1  gettext-1.0.tar.xz\n7677da43ef759c68e005f5d4c37986a6  glibc-2.44.tar.xz\n956dc04e864001a9c22429f761f2c283  gmp-6.3.0.tar.xz\n31753b021ea78a21f154bf9eecb8b079  gperf-3.3.tar.gz\n5d9301ed9d209c4a88c8d3a6fd08b9ac  grep-3.12.tar.xz\nd9d996af3d05ebab934380be708ea584  groff-1.24.1.tar.gz\n383f9effad01c235d2535357ff717543  grub-2.14.tar.xz\n4bf5a10f287501ee8e8ebe00ef62b2c2  gzip-1.14.tar.xz\nf6d2619cfac3a68f91392e28fe4067c3  iana-etc-20260805.tar.gz\nf0f9ad13045a67da9c882148f9efae6b  inetutils-2.8.tar.gz\n4f322144fb9a0877c5f9ef71b2f11180  iproute2-7.1.0.tar.xz\n66d4c25ff43d1deaf9637ccda523dec8  jinja2-3.1.6.tar.gz\n77ff950dfa4c34fdf41125547bfa831a  kbd-2.10.0.tar.xz\n36f2cc483745e81ede3406fa55e1065a  kmod-34.2.tar.xz\nc4c9eea5b1862783b078c67ca67c9185  less-704.tar.gz\n064e318d906cbd1a3de1ac3cbd3ce32d  lfs-bootscripts-20250827.tar.xz\n0ff11419aa4813c0a0f84fe67bf3b39e  libcap-2.78.tar.xz\n96fe46f2a7bb82559b35a268a2c000ba  libffi-3.8.0.tar.gz\n17ac6969b2015386bcb5d278a08a40b5  libpipeline-1.5.8.tar.gz\n87743862e6cabfb9e76651bc64e31e5c  libtool-2.6.2.tar.xz\n25e888919ddcd153a07daa95224fa436  libxcrypt-4.5.2.tar.xz\n807584f564568b40162e9e4a72bf191f  linux-7.1.8.tar.xz\ndead9f5f1966d9ae56e1e32761e4e675  lz4-1.10.0.tar.gz\n8051eef7239b2f187791f2ab0034d6b7  m4-1.4.21.tar.xz\nc8469a3713cbbe04d955d4ae4be23eeb  make-4.4.1.tar.gz\nb6335533cbeac3b24cd7be31fdee8c83  man-db-2.13.1.tar.xz\n44915a91e4a28161dc421636a193fb3a  man-pages-6.18.tar.xz\n13a73126d25afa72a1ff0daed072f5fe  markupsafe-3.0.3.tar.gz\n9f943c267d63016012efcb0f31ecdd7d  meson-1.12.0.tar.gz\n40c5fba305125279ea46041160e81daf  mpc-1.4.1.tar.xz\n3d4412579b1edc1047efab151889cca9  mpdecimal-4.0.1.tar.gz\n7c32c39b8b6e3ae85f25156228156061  mpfr-4.2.2.tar.xz\ndd45bf6854430af403452a7a6a40652c  ncurses-6.6.tar.gz\n76c00637fde44909cd7d56f8d73f2042  ninja-1.13.2.tar.gz\n07e316afe26b61e72206b81706b497bb  openssl-4.0.1.tar.gz\nc6809ec56986682ceffe573b8778a1ce  packaging-26.3.tar.gz\n149327a021d41c8f88d034eab41c039f  patch-2.8.tar.xz\naded5840ab5a7d772dd4e16fc294b665  pcre2-10.47.tar.bz2\n55761cf1543af326492fd194647796d1  perl-5.44.0.tar.xz\n18c528161e6b04ae36dc981af8c4d97e  pkgconf-3.0.5.tar.xz\nd47bdda51c4bd595a1ab21b8e538bcb3  procps-ng-4.0.7.tar.xz\n53eae841735189a896d614cba440eb10  psmisc-23.7.tar.xz\na4c4c2991b4126e227073c2d9445f432  Python-3.14.7.tar.xz\nbdf55dddc02a76961d61730f06d18849  python-3.14.7-docs-html.tar.bz2\n25a73bfb2a3ad7146c5e9d4408d9f6cd  readline-8.3.tar.gz\nc70dc5372db95c816442ffedf77a0d0f  sed-4.10.tar.xz\nc6919a4b0862ca30604559e163a6cce9  setuptools-84.0.0.tar.gz\nf52e717bd330818c67bd57c897ec5a8e  shadow-4.20.2.tar.xz\nee54db5a5b04e77d4883ce0c051a1eba  sqlite-autoconf-3530400.tar.gz\n2cd5b168d0e5c5ae2b99beb3a4269a73  sqlite-doc-3530400.zip\naf60786956a2dc84054fbf46652e515e  sysklogd-2.7.2.tar.gz\ne3f04ccc83a28ec5e80c5432bb8329f5  systemd-261.2.tar.gz\n4c5533c1a2d0921dd4c5b5e6b8902570  systemd-man-pages-261.2.tar.xz\nbc6890b975d19dc9db42d0c7364dd092  sysvinit-3.14.tar.xz\na2d8042658cfd8ea939e6d911eaf4152  tar-1.35.tar.xz\nacfe0c9f7d0c626ecf026e834a888da6  tcl8.6.18-src.tar.gz\n54d1ff0f5eee4e81e5cdaa4baa343397  tcl8.6.18-html.tar.gz\n915a09fcdfc2bf0f5ecf9e556d5698ff  texinfo-7.3.tar.xz\nbff7174205cefab793e3b24271ef2f45  tzdata2026c.tar.gz\nacd4360d8a5c3ef320b9db88d275dae6  udev-lfs-20230818.tar.xz\n1d70131b70abda3dec3b37e282a20c96  util-linux-2.42.2.tar.xz\n060c9c0d7e2bdb5e5d80daad596cae02  vim-9.2.1025.tar.gz\nf668e4885de814378b332eceea04a8a0  wheel-0.48.0.tar.gz\na02753f34e5546d20213b87f876a0933  xz-5.8.3.tar.xz\na1e6c958597af3c67d162995a342138a  zlib-1.3.2.tar.gz\n780fc1896922b1bc52a4e90980cdda48  zstd-1.5.7.tar.gz\n6a5ac7e89b791aae556de0f745916f7f  bzip2-1.0.8-install_docs-1.patch\n900d64d9936516b68613271c9ebc0059  coreutils-9.11-i18n-1.patch\n0ca4d6bb8d572fbcdb13cb36cd34833e  expect-5.45.4-gcc15-1.patch\n990574184b25aa3029a2444e81865098  glibc-2.44-upstream_fixes-1.patch\n9a5997c3452909b1769918c759eff8a2  glibc-fhs-1.patch\nf75cca16a38da6caa7d52151f7136895  kbd-2.10.0-backspace-1.patch\n597d7737df1b4ea4e184c193da523050  Python-3.14.7-openssl_4-1.patch\n3af8fd8e13cad481eeeaa48be4247445  sysvinit-3.14-consolidated-1.patch\ndbab49e317105539611866dac5dd54f6  tar-1.35-acl_fix-1.patch\n",
+                      "is_tarball": false,
+                      "size_bytes": 5412
+                    }
+                  }
+                },
+                "tools": {
+                  "name": "tools",
+                  "is_directory": true,
+                  "owner": "lfs",
+                  "group": "lfs",
+                  "mode": 493,
+                  "mtime": 1794279198.8533213,
+                  "children": {}
+                }
+              }
+            }
+          }
+        },
+        "opt": {
+          "name": "opt",
+          "is_directory": true,
+          "owner": "root",
+          "group": "root",
+          "mode": 493,
+          "mtime": 1794278042.296921,
+          "children": {}
+        },
+        "proc": {
+          "name": "proc",
+          "is_directory": true,
+          "owner": "root",
+          "group": "root",
+          "mode": 493,
+          "mtime": 1794278042.2969275,
+          "children": {}
+        },
+        "root": {
+          "name": "root",
+          "is_directory": true,
+          "owner": "root",
+          "group": "root",
+          "mode": 448,
+          "mtime": 1794278042.296934,
+          "children": {}
+        },
+        "sbin": {
+          "name": "sbin",
+          "is_directory": true,
+          "owner": "root",
+          "group": "root",
+          "mode": 493,
+          "mtime": 1794278042.2969406,
+          "children": {}
+        },
+        "sys": {
+          "name": "sys",
+          "is_directory": true,
+          "owner": "root",
+          "group": "root",
+          "mode": 493,
+          "mtime": 1794278042.2969475,
+          "children": {}
+        },
+        "tmp": {
+          "name": "tmp",
+          "is_directory": true,
+          "owner": "root",
+          "group": "root",
+          "mode": 493,
+          "mtime": 1794278042.2969537,
+          "children": {}
+        },
+        "usr": {
+          "name": "usr",
+          "is_directory": true,
+          "owner": "root",
+          "group": "root",
+          "mode": 493,
+          "mtime": 1794278042.2969596,
+          "children": {}
+        },
+        "var": {
+          "name": "var",
+          "is_directory": true,
+          "owner": "root",
+          "group": "root",
+          "mode": 493,
+          "mtime": 1794278042.2969656,
+          "children": {}
+        }
+      }
+    },
+    "cwd": "/home/lfs",
+    "current_user": "lfs",
+    "user_stack": [
+      "root"
+    ],
+    "users": {
+      "root": {
+        "uid": 0,
+        "gid": 0,
+        "home": "/root",
+        "shell": "/bin/bash"
+      },
+      "lfs": {
+        "uid": 1000,
+        "gid": 1000,
+        "group": "lfs",
+        "home": "/home/lfs",
+        "shell": "/bin/bash"
+      }
+    },
+    "groups": {
+      "root": {
+        "gid": 0,
+        "members": [
+          "root"
+        ]
+      },
+      "lfs": {
+        "gid": 1000,
+        "members": [
+          "lfs"
+        ]
+      }
+    },
+    "env": {
+      "USER": "lfs",
+      "LOGNAME": "lfs",
+      "HOME": "/home/lfs",
+      "SHELL": "/bin/bash",
+      "TERM": "xterm-256color",
+      "PWD": "/home/lfs",
+      "": "POSIX",
+      "LFS": "/mnt/lfs",
+      "LC_ALL": "POSIX",
+      "LFS_TGT": "x86_64-lfs-linux-gnu",
+      "PATH": "/usr/bin:/bin"
+    },
+    "user_saved_envs": {
+      "root": {
+        "USER": "root",
+        "LOGNAME": "root",
+        "HOME": "/root",
+        "SHELL": "/bin/bash",
+        "PATH": "/bin:/usr/bin:/sbin:/usr/sbin",
+        "TERM": "xterm-256color",
+        "PWD": "/mnt/lfs/sources",
+        "LFS": "/mnt/lfs"
+      }
+    },
+    "partitions": {
+      "/dev/sda1": {
+        "device": "/dev/sda1",
+        "size_mb": 512,
+        "part_type": "EFI System",
+        "filesystem": "vfat",
+        "is_swap_active": false,
+        "mount_point": null
+      },
+      "/dev/sda2": {
+        "device": "/dev/sda2",
+        "size_mb": 4096,
+        "part_type": "Linux swap",
+        "filesystem": "swap",
+        "is_swap_active": true,
+        "mount_point": null
+      },
+      "/dev/sda3": {
+        "device": "/dev/sda3",
+        "size_mb": 51200,
+        "part_type": "Linux filesystem",
+        "filesystem": "ext4",
+        "is_swap_active": false,
+        "mount_point": "/mnt/lfs"
+      }
+    },
+    "mounts": {
+      "/mnt/lfs": "/dev/sda3"
+    }
+  },
+  "char": {
+    "name": "Operador 0x7F",
+    "title": "Compilador do Vácuo",
+    "level": 5,
+    "xp": 200,
+    "patience": 100,
+    "insight": 55,
+    "caffeine": 40,
+    "inventory": [],
+    "unlocked_titles": [
+      "Aprendiz de Sucata",
+      "Engenheiro de Partições",
+      "Guardião dos Somas MD5",
+      "Arquiteto da Toolchain",
+      "Compilador do Vácuo"
+    ]
+  },
+  "story_engine": {
+    "quests": [
+      {
+        "id": "Q0_PROLOGUE",
+        "chapter": 1,
+        "title": "Despertar na Estação Hera",
+        "description": "Os reatores da Estação Hera estão em colapso. Estabeleça comunicação com a IA K.E.R.N.E.L. e analise o terminal.",
+        "objectives": [
+          "Responder à transmissão da IA ou inspecionar o status com 'hint' ou 'status'"
+        ],
+        "hints": [
+          "Digite 'hint' para orientações imediatas ou 'status' para inspecionar a telemetria.",
+          "Use 'lfs-book 1' para ler as diretrizes do Capítulo 1."
+        ],
+        "completed": true,
+        "xp_reward": 50
+      },
+      {
+        "id": "Q1_PARTITION_AND_MOUNT",
+        "chapter": 2,
+        "title": "Ato 1 - Cap. 2: Preparando o Hospedeiro",
+        "description": "Configure a variável $LFS, prepare as partições do disco /dev/sda, formate /dev/sda3 com ext4, configure o swap em /dev/sda2 e monte $LFS.",
+        "objectives": [
+          "Definir a variável de ambiente: export LFS=/mnt/lfs",
+          "Formatar /dev/sda3 em ext4: mkfs.ext4 /dev/sda3",
+          "Formatar e ativar o swap: mkswap /dev/sda2 && swapon /dev/sda2",
+          "Criar ponto de montagem: mkdir -pv $LFS",
+          "Montar /dev/sda3 em $LFS: mount -v -t ext4 /dev/sda3 $LFS"
+        ],
+        "hints": [
+          "Primeiro execute: export LFS=/mnt/lfs",
+          "Inspecione as partições existentes com: fdisk /dev/sda",
+          "Formate a partição de dados: mkfs.ext4 /dev/sda3",
+          "Ative o swap: mkswap /dev/sda2 && swapon /dev/sda2",
+          "Crie o diretório com: mkdir -pv $LFS e monte com: mount -v -t ext4 /dev/sda3 $LFS"
+        ],
+        "completed": true,
+        "xp_reward": 200
+      },
+      {
+        "id": "Q2_PACKAGES_AND_PATCHES",
+        "chapter": 3,
+        "title": "Ato 1 - Cap. 3: Pacotes e Remendos",
+        "description": "Crie o diretório sagrado $LFS/sources, ajuste as permissões pegajosas com chmod a+wt, adquira os tarballs de fontes e valide as somas com md5sum -c md5sums.",
+        "objectives": [
+          "Criar diretório de fontes: mkdir -v $LFS/sources",
+          "Ajustar permissões: chmod -v a+wt $LFS/sources",
+          "Adquirir pacotes (use 'lfs-get-sources' ou espere a varredura da IA)",
+          "Validar integridade dos arquivos: md5sum -c md5sums (ou dentro de $LFS/sources)"
+        ],
+        "hints": [
+          "Crie o diretório de fontes: mkdir -v $LFS/sources",
+          "Defina o sticky bit com: chmod -v a+wt $LFS/sources",
+          "Use o comando de recuperação da estação: lfs-get-sources",
+          "Mude para o diretório com: cd $LFS/sources e rode: md5sum -c md5sums"
+        ],
+        "completed": true,
+        "xp_reward": 250
+      },
+      {
+        "id": "Q3_FINAL_PREPARATIONS",
+        "chapter": 4,
+        "title": "Ato 1 - Cap. 4: Preparações Finais",
+        "description": "Crie o diretório de ferramentas temporárias $LFS/tools, crie o grupo e usuário isolado 'lfs', e conceda a ele a propriedade do ambiente.",
+        "objectives": [
+          "Criar o diretório temporário: mkdir -pv $LFS/tools",
+          "Criar o grupo: groupadd lfs",
+          "Criar o usuário: useradd -s /bin/bash -g lfs -m -k /dev/null lfs",
+          "Transferir posse para lfs: chown -v lfs $LFS/{usr{,/*},lib,var,etc,bin,sbin,tools,sources}"
+        ],
+        "hints": [
+          "Crie a pasta tools: mkdir -pv $LFS/tools",
+          "Crie o grupo e usuário com: groupadd lfs e useradd -s /bin/bash -g lfs -m -k /dev/null lfs",
+          "Transfira a propriedade das ferramentas e fontes com: chown -v lfs $LFS/tools e chown -v lfs $LFS/sources"
+        ],
+        "completed": true,
+        "xp_reward": 300
+      },
+      {
+        "id": "Q4_STERILE_ENVIRONMENT",
+        "chapter": 4,
+        "title": "Ato 1 - Cap. 4: O Ambiente Estéril",
+        "description": "Alterne para o usuário lfs com login limpo (su - lfs), configure .bash_profile e .bashrc para isolar $LFS_TGT e manter o $PATH puro.",
+        "objectives": [
+          "Mudar para o usuário lfs: su - lfs",
+          "Garantir $LFS_TGT=x86_64-lfs-linux-gnu",
+          "Garantir ambiente estéril ($LC_ALL=POSIX e $PATH isolado)"
+        ],
+        "hints": [
+          "Alterne para a sessão limpa: su - lfs",
+          "Você pode definir o ambiente no terminal ou via ~/.bashrc:",
+          "export LFS=/mnt/lfs",
+          "export LC_ALL=POSIX",
+          "export LFS_TGT=x86_64-lfs-linux-gnu",
+          "export PATH=/usr/bin:/bin"
+        ],
+        "completed": true,
+        "xp_reward": 400
+      }
+    ],
+    "current_quest_index": 5,
+    "dialogue_history": [
+      {
+        "speaker": "K.E.R.N.E.L.",
+        "text": "ALERTA CRÍTICO: Pressão atmosférica na Estação Hera em 42%. O firmware central foi corrompido pela tempestade de radiação de Júpiter. Nossos antigos sistemas binários proprietários falharam miseravelmente. Você é o único operador consciente nos setores de manutenção. Se quiser respirar amanhã, precisamos construir um sistema Linux puro, do zero absoluto, a partir do código-fonte. Não cometa erros. Eu odeio morrer com incompetência humana.",
+        "mood": "alert",
+        "choices": [
+          {
+            "key": "1",
+            "label": "Quem é você e o que aconteceu aqui?",
+            "reply": "Sou a K.E.R.N.E.L. - Kernel Emulation and Radiation Neutralization Executive Layer. E você acabou de sobreviver à maior pane de subsistemas do século."
+          },
+          {
+            "key": "2",
+            "label": "Por que precisamos compilar tudo do zero?",
+            "reply": "Porque os binários pré-compilados do hospedeiro contêm links simbólicos envenenados pela radiação. Apenas um ambiente estéril construído com compilação cruzada nos salvará."
+          },
+          {
+            "key": "3",
+            "label": "Estou pronto. O que fazemos primeiro?",
+            "reply": "Excelente. Menos conversa fiada e mais particionamento. Abra o manual com 'lfs-book 2' ou siga meus comandos de hospedeiro."
+          }
+        ]
+      },
+      {
+        "speaker": "K.E.R.N.E.L.",
+        "text": "Excelente. Menos conversa fiada e mais particionamento. Abra o manual com 'lfs-book 2' ou siga meus comandos de hospedeiro.",
+        "mood": "normal",
+        "choices": []
+      },
+      {
+        "speaker": "K.E.R.N.E.L.",
+        "text": "Conexão neural sincronizada. Iniciando protocolo de reconstrução: ATO 1, CAPÍTULO 2.",
+        "mood": "encouraging",
+        "choices": []
+      },
+      {
+        "speaker": "K.E.R.N.E.L.",
+        "text": "Excelente trabalho de base, Operador! O disco /dev/sda3 está formatado em ext4 e montado em $LFS. O espaço de swap está ativo nos registradores de memória da estação. Avançando para o CAPÍTULO 3: Aquisição de Pacotes e Remendos sagrados!",
+        "mood": "triumph",
+        "choices": [
+          {
+            "key": "1",
+            "label": "Onde estão os arquivos de código-fonte?",
+            "reply": "Eles estão isolados no banco de dados de sobrevivência. Crie $LFS/sources e execute 'lfs-get-sources' para recuperá-los."
+          }
+        ]
+      },
+      {
+        "speaker": "K.E.R.N.E.L.",
+        "text": "Somas de verificação MD5 100% íntegras! Todos os 98 tarballs e remendos oficiais do LFS 13.1 estão prontos. Sem nenhum byte contaminado. Agora precisamos blindar a montagem: CAPÍTULO 4 - Preparações Finais.",
+        "mood": "triumph",
+        "choices": []
+      },
+      {
+        "speaker": "K.E.R.N.E.L.",
+        "text": "Usuário 'lfs' registrado nos circuitos de controle. Diretório $LFS/tools alocado e sob posse do usuário desprivilegiado. Última etapa do Ato 1: Logar com 'su - lfs' e garantir o Ambiente Estéril!",
+        "mood": "encouraging",
+        "choices": []
+      },
+      {
+        "speaker": "K.E.R.N.E.L.",
+        "text": "★ ATO 1 CONCLUÍDO COM DISTINÇÃO! ★\nAmbiente Estéril ativado. $LFS_TGT = x86_64-lfs-linux-gnu.\nA contaminação do hospedeiro foi anulada. Os subsistemas de oxigênio estabilizaram em nível de emergência seguro.\nVocê acaba de dominar as fundações do Linux From Scratch 13.1!\nAguarde o Ato 2 para a forja da Cross-Toolchain (Binutils e GCC Pass 1).",
+        "mood": "triumph",
+        "choices": []
+      }
+    ],
+    "flags": {
+      "prologue_done": true,
+      "sources_downloaded": true,
+      "md5_checked": true,
+      "act1_celebrated": true
+    }
+  },
+  "telemetry": {
+    "oxygen": 19.289999999999075,
+    "temperature": 51.859644940599196,
+    "cpu_usage": 19.39797263386719,
+    "ram_mb": 1450
+  },
+  "command_history": [
+    "4",
+    "3",
+    "lfs-book 2",
+    "save",
+    "export LFS=/mnt/lfs",
+    "echo $LFS",
+    "lsblk -f",
+    "fdisk",
+    "hint",
+    "mkfs.ext4 /dev/sda3",
+    "clear",
+    "mkswap /dev/sda3",
+    "mkfs.ext4 /dev/sda3",
+    "mkswap /dev/sda2",
+    "swapon /dev/sda2",
+    "echo $LFS",
+    "mkdir -pv $LFS",
+    "mount /dev/sda3 /mnt/lfs",
+    "mkdir -v /mnt/lfs/sources",
+    "chmod -v a+wt /mnt/lfs/sources",
+    "lfs-book 3",
+    "lfs-get-sources",
+    "ls /mnt/lfs/sources",
+    "ls",
+    "ls /mnt/lfs/sources | grep md5",
+    "clear",
+    "md5sums -c md5sums",
+    "md5sum -c md5sums",
+    "cd /mnt/lfs/sources",
+    "md5sum -c md5sums",
+    "mkdir /mnt/lfs/tools",
+    "groupadd lfs",
+    "useradd -s /bin/bash -g lfs -m -k /dev/null lfs",
+    "chown lfs",
+    "chown -v lfs",
+    "chwon -v lfs $LFS/{usr{,/*},lib,var,etc,bin,sbin,tools,sources}",
+    "chown -v lfs $LFS/{usr{,/*},lib,var,etc,bin,sbin,tools,sources}",
+    "su - lfs",
+    "$LFS_TFT=x86_64-lfs-linux-gnu",
+    "$LC_ALL=POSIX",
+    "echo $LC_ALL",
+    "hint",
+    "export LFS=/mnt/lfs",
+    "export LC_ALL=POSIX",
+    "export LFS_TGT=x86_64-lfs-linux-gnu",
+    "export PATH=/usr/bin:/bin",
+    "save"
+  ]
+}
