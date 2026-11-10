@@ -2,7 +2,10 @@
 
 Um RPG cyberpunk imersivo no terminal onde você constrói o Linux From Scratch (LFS 13.1) passo a passo para restaurar os sistemas vitais da Estação Orbital Hera.
 
+Rode o jogo com: `uv run python -m lfs_game.main`
+
 ## Funcionalidades
+
 - **Ato 1 (Capítulos 1 a 4 do LFS 13.1 pt_BR)**:
   - Preparação do hospedeiro, particionamento `/dev/sda` e montagem em `$LFS`.
   - Download e verificação das somas MD5 oficiais dos pacotes.
