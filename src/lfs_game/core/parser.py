@@ -93,6 +93,11 @@ class ShellParser:
                     state_changed=True
                 )
 
+        # Handle bash case statement (e.g. case $(uname -m) in x86_64) ... ;; esac)
+        case_res = self._try_execute_case_statement(raw)
+        if case_res is not None:
+            return case_res
+
         # Syntax checks for invalid shell tokens
         if ";;" in raw:
             return CommandResult(output="bash: erro de sintaxe próximo ao token inesperado ';;'", success=False)
@@ -150,6 +155,46 @@ class ShellParser:
             )
 
         return self._execute_single(raw)
+
+    def _try_execute_case_statement(self, raw: str) -> Optional[CommandResult]:
+        """Parses and executes a bash 'case $(uname -m) in x86_64) ... ;; esac' block."""
+        clean = raw.strip()
+        if not (clean.startswith("case ") or re.match(r"^case\s+", clean)):
+            return None
+
+        m = re.match(r"^case\s+(.+?)\s+in\s+(.+?)\s+esac\s*$", clean, re.DOTALL)
+        if not m:
+            return None
+
+        test_expr = m.group(1).strip()
+        branches_block = m.group(2).strip()
+
+        fs = self.engine.fs
+        test_val = fs.expand_vars(test_expr)
+        test_val = test_val.replace("$(uname -m)", "x86_64").replace("`uname -m`", "x86_64").strip()
+        if not test_val:
+            test_val = "x86_64"
+
+        branches = branches_block.split(";;")
+        for branch in branches:
+            branch = branch.strip()
+            if not branch or ")" not in branch:
+                continue
+            pattern, cmds = branch.split(")", 1)
+            pattern = pattern.strip()
+            cmds = cmds.strip()
+
+            patterns = [p.strip() for p in pattern.split("|")]
+            matched = False
+            for p in patterns:
+                if p in ("*", test_val) or (test_val == "x86_64" and "64" in p):
+                    matched = True
+                    break
+
+            if matched and cmds:
+                return self.execute(cmds)
+
+        return CommandResult(output="", success=True)
 
     def _execute_single(self, cmd_str: str, stdin_data: str = "") -> CommandResult:
         """Executes a single command or pipeline."""
@@ -642,7 +687,31 @@ class ShellParser:
         if self.engine.fs.user_stack:
             ok, msg = self.engine.fs.exit_user()
             return CommandResult(output=msg, success=ok, state_changed=True)
+        if self.engine.fs.in_chroot:
+            ok, msg = self.engine.fs.exit_chroot()
+            return CommandResult(output=msg, success=ok, state_changed=True)
         return CommandResult(output="Conexão com a estação encerrada.", success=True, system_event="EXIT")
+
+    def _cmd_chroot(self, args: List[str]) -> CommandResult:
+        """Enters chroot environment at target directory."""
+        if not args:
+            return CommandResult(output="chroot: operando ausente", success=False)
+
+        target = args[0]
+        ok, msg = self.engine.fs.enter_chroot(target)
+        if not ok:
+            return CommandResult(output=msg, success=False)
+
+        # Parse any environment overrides passed (e.g. HOME=/root TERM=xterm PATH=/usr/bin:/usr/sbin)
+        i = 1
+        while i < len(args):
+            arg = args[i]
+            if "=" in arg and not arg.startswith("-"):
+                k, v = arg.split("=", 1)
+                self.engine.fs.env[k] = v
+            i += 1
+
+        return CommandResult(output=msg, success=True, state_changed=True)
 
     def _cmd_useradd(self, args: List[str]) -> CommandResult:
         group = None
@@ -687,15 +756,24 @@ class ShellParser:
     def _cmd_chown(self, args: List[str]) -> CommandResult:
         recursive = False
         verbose = False
+        from_owner = None
         pos_args = []
-        for a in args:
-            if a.startswith("-"):
+        i = 0
+        while i < len(args):
+            a = args[i]
+            if a.startswith("--from="):
+                from_owner = a.split("=", 1)[1]
+            elif a == "--from" and i + 1 < len(args):
+                from_owner = args[i + 1]
+                i += 1
+            elif a.startswith("-"):
                 if "R" in a or "r" in a:
                     recursive = True
                 if "v" in a:
                     verbose = True
             else:
                 pos_args.append(a)
+            i += 1
 
         if len(pos_args) < 2:
             return CommandResult(output="chown: operandos insuficientes", success=False)
@@ -706,7 +784,7 @@ class ShellParser:
         all_ok = True
 
         for target in targets:
-            ok, msg = self.engine.fs.chown(target, owner_group, recursive=recursive, verbose=verbose)
+            ok, msg = self.engine.fs.chown(target, owner_group, recursive=recursive, verbose=verbose, from_owner=from_owner)
             if msg:
                 outputs.append(msg)
             if not ok:
@@ -802,22 +880,46 @@ Dispositivo   Início       Fim   Setores Tamanho Tipo
 
     def _cmd_mount(self, args: List[str]) -> CommandResult:
         verbose = False
+        is_bind = False
         fstype = "ext4"
+        options = ""
         pos_args = []
 
         i = 0
         while i < len(args):
             a = args[i]
-            if a == "-v":
+            if a in ("-v", "--verbose"):
                 verbose = True
+                i += 1
+            elif a in ("--bind", "-B"):
+                is_bind = True
+                i += 1
+            elif a == "-vt" and i + 1 < len(args):
+                verbose = True
+                fstype = args[i + 1]
+                i += 2
+            elif a.startswith("-vt") and len(a) > 3:
+                verbose = True
+                fstype = a[3:]
                 i += 1
             elif a == "-t" and i + 1 < len(args):
                 fstype = args[i + 1]
                 i += 2
+            elif a.startswith("-t") and len(a) > 2:
+                fstype = a[2:]
+                i += 1
+            elif a == "-o" and i + 1 < len(args):
+                options = args[i + 1]
+                i += 2
+            elif a.startswith("-o") and len(a) > 2:
+                options = a[2:]
+                i += 1
             elif not a.startswith("-"):
                 pos_args.append(a)
                 i += 1
             else:
+                if "bind" in a:
+                    is_bind = True
                 i += 1
 
         if not pos_args:
@@ -831,7 +933,7 @@ Dispositivo   Início       Fim   Setores Tamanho Tipo
             return CommandResult(output="mount: especifique dispositivo e ponto de montagem", success=False)
 
         device, mp = pos_args[0], pos_args[1]
-        ok, msg = self.engine.fs.mount(device, mp, fstype=fstype, verbose=verbose)
+        ok, msg = self.engine.fs.mount(device, mp, fstype=fstype, verbose=verbose, is_bind=is_bind, options=options)
         return CommandResult(output=msg, success=ok, state_changed=ok)
 
     def _cmd_umount(self, args: List[str]) -> CommandResult:
@@ -1466,6 +1568,42 @@ Dispositivo   Início       Fim   Setores Tamanho Tipo
             return CommandResult(output=f"[find] Arquivos desnecessários removidos de '{target_dir}'.", success=True, state_changed=True)
         return CommandResult(output=target_dir, success=True)
 
+    def _cmd_install(self, args: List[str]) -> CommandResult:
+        """Handles Unix 'install' utility (e.g. install -dv -m 0750 /root)."""
+        verbose = False
+        dir_mode = False
+        mode: Optional[int] = None
+        targets = []
+
+        i = 0
+        while i < len(args):
+            a = args[i]
+            if a.startswith("-"):
+                if "d" in a:
+                    dir_mode = True
+                if "v" in a:
+                    verbose = True
+                if "m" in a:
+                    if a.endswith("m") and i + 1 < len(args):
+                        mode_str = args[i + 1]
+                        i += 1
+                    else:
+                        m_idx = a.index("m")
+                        mode_str = a[m_idx + 1:]
+                    try:
+                        mode = int(mode_str, 8)
+                    except ValueError:
+                        pass
+            else:
+                targets.append(a)
+            i += 1
+
+        if not targets:
+            return CommandResult(output="install: operando de arquivo ausente", success=False)
+
+        ok, msg = self.engine.fs.install(targets, dir_mode=dir_mode, mode=mode, verbose=verbose)
+        return CommandResult(output=msg, success=ok, state_changed=ok)
+
     def _cmd_ln(self, args: List[str]) -> CommandResult:
         """Creates hard or symbolic links in virtual FS."""
         clean_args = [a for a in args if not a.startswith("-")]
@@ -1594,6 +1732,130 @@ Dispositivo   Início       Fim   Setores Tamanho Tipo
                 status = "[dim yellow]⏳ PENDENTE [/dim yellow]"
 
             lines.append(f"{p.name:<28} {p.chapter:<5} {p.sbu_label:<14} {status:<24} {p.install_path}")
+
+        lines.append("─" * 84)
+        pct = (installed_count / len(pkgs)) * 100 if pkgs else 0
+        lines.append(
+            f"[bold white]Progresso:[/bold white] {installed_count}/{len(pkgs)} pacotes ({pct:.1f}%) | "
+            f"[bold white]SBU Concluído:[/bold white] {compiled_sbu:.1f}/{total_sbu:.1f} UPC"
+        )
+        return CommandResult(output="\n".join(lines), success=True)
+
+    def _cmd_lfs_compile_chroot(self, args: List[str]) -> CommandResult:
+        """Compiles Chapter 7 additional chroot tools (individual or batch)."""
+        from ..data.lfs_manifest import TOOLCHAIN_CATALOG, get_toolchain_package
+
+        if not self.engine.fs.in_chroot:
+            return CommandResult(
+                output="lfs-compile-chroot: ERRO: O comando só pode ser executado dentro do ambiente chroot ($LFS).",
+                success=False
+            )
+
+        if not self.engine.fs.exists("/dev/null"):
+            return CommandResult(
+                output="lfs-compile-chroot: ERRO: /dev/null não encontrado no chroot. Monte /dev via bind mount antes de compilar.",
+                success=False
+            )
+
+        if not self.engine.fs.exists("/proc/cpuinfo") and not self.engine.fs.exists("/proc"):
+            return CommandResult(
+                output="lfs-compile-chroot: ERRO: /proc não está montado no chroot. Monte o sistema de arquivos proc antes de compilar.",
+                success=False
+            )
+
+        target = args[0].strip().lower() if args else "all"
+
+        ch7_order = ["gettext", "bison", "perl", "python", "texinfo", "util-linux"]
+
+        if target == "all":
+            lines = [
+                "[bold cyan]╔════════════════════════════════════════════════════════════════════════╗[/bold cyan]",
+                "[bold cyan]║ FORJA DAS FERRAMENTAS ADICIONAIS DO CHROOT - CAPÍTULO 7 (LFS 13.1)     ║[/bold cyan]",
+                "[bold cyan]╚════════════════════════════════════════════════════════════════════════╝[/bold cyan]",
+            ]
+            total_xp = 0
+            new_compiled_count = 0
+            for idx, tool_id in enumerate(ch7_order, 1):
+                pkg = TOOLCHAIN_CATALOG.get(tool_id)
+                name = pkg.name if pkg else tool_id.upper()
+                sbu = pkg.sbu_label if pkg else "0,2 UPC"
+                if not self.engine.fs.is_package_compiled(tool_id):
+                    new_compiled_count += 1
+                    total_xp += 75
+                self.engine.fs.record_package_compiled(tool_id)
+                self.engine.fs.install_tool(tool_id, f"/usr/bin/{tool_id}")
+                if pkg and pkg.binaries:
+                    for b in pkg.binaries:
+                        self.engine.fs.install_tool(b, f"/usr/bin/{b}")
+                        self.engine.fs.record_package_compiled(b)
+                lines.append(f"  [cyan][{idx:02d}/06][/cyan] {name:16} ({sbu:12}) ... [bold green][OK][/bold green]")
+
+            if new_compiled_count > 0:
+                self.engine.char.add_xp(total_xp)
+            self.engine.story_engine.flags["chroot_tools_compiled"] = True
+            if new_compiled_count == 0:
+                lines.append(f"\n[yellow]ℹ Todas as 6 ferramentas do chroot já estavam compiladas! (+0 XP)[/yellow]")
+            else:
+                lines.append(f"\n[bold green]★ Todas as 6 ferramentas temporárias do chroot instaladas com sucesso! (+{total_xp} XP)[/bold green]")
+            return CommandResult(output="\n".join(lines), success=True, state_changed=new_compiled_count > 0)
+
+        # Single package
+        pkg = get_toolchain_package(target)
+        if not pkg:
+            return CommandResult(
+                output=f"lfs-compile-chroot: pacote '{target}' não encontrado no catálogo. Pacotes válidos: {', '.join(ch7_order)}.",
+                success=False
+            )
+
+        already_compiled = self.engine.fs.is_package_compiled(pkg.id)
+        self.engine.fs.record_package_compiled(pkg.id)
+        for b in pkg.binaries:
+            self.engine.fs.install_tool(b, f"/usr/bin/{b}")
+            self.engine.fs.record_package_compiled(b)
+
+        if already_compiled:
+            return CommandResult(
+                output=f"[yellow]ℹ {pkg.name} já se encontra compilado e atualizado em {pkg.install_path}. (+0 XP)[/yellow]",
+                success=True,
+                state_changed=False
+            )
+
+        xp_earned = int(pkg.sbu * 100)
+        self.engine.char.add_xp(xp_earned)
+        return CommandResult(
+            output=f"[bold green]✔ {pkg.name} compilado e instalado com sucesso em {pkg.install_path}! (+{xp_earned} XP)[/bold green]",
+            success=True,
+            state_changed=True
+        )
+
+    def _cmd_lfs_status_chroot(self, args: List[str]) -> CommandResult:
+        """Displays status checklist of Chapter 7 tools."""
+        from ..data.lfs_manifest import get_toolchain_packages
+        pkgs = get_toolchain_packages(chapter=7)
+
+        lines = [
+            "[bold cyan]╔══════════════════════════════════════════════════════════════════════════════════╗[/bold cyan]",
+            "[bold cyan]║ STATUS DAS FERRAMENTAS DO CHROOT - CAPÍTULO 7 (LFS 13.1)                         ║[/bold cyan]",
+            "[bold cyan]╚══════════════════════════════════════════════════════════════════════════════════╝[/bold cyan]",
+            f"{'PACOTE':<24} {'VERSÃO':<10} {'UPC (SBU)':<14} {'STATUS':<20} {'DESTINO'}",
+            "─" * 84,
+        ]
+
+        total_sbu = 0.0
+        compiled_sbu = 0.0
+        installed_count = 0
+
+        for p in pkgs:
+            total_sbu += p.sbu
+            is_done = self.engine.fs.is_package_compiled(p.id)
+            if is_done:
+                compiled_sbu += p.sbu
+                installed_count += 1
+                status = "[bold green]✔ INSTALADO[/bold green]"
+            else:
+                status = "[dim yellow]⏳ PENDENTE [/dim yellow]"
+
+            lines.append(f"{p.name:<24} {p.version:<10} {p.sbu_label:<14} {status:<24} {p.install_path}")
 
         lines.append("─" * 84)
         pct = (installed_count / len(pkgs)) * 100 if pkgs else 0

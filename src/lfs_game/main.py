@@ -34,7 +34,10 @@ def run_headless_shell(engine: GameEngine):
         symbol = "#" if is_root else "$"
         color = "red" if is_root else "green"
 
-        prompt_str = f"[{color}]{user}@hera[/{color}]:[cyan]{cwd}[/cyan]{symbol} "
+        if engine.fs.in_chroot:
+            prompt_str = f"[yellow](lfs chroot)[/yellow] [{color}]{user}[/{color}]:[cyan]{cwd}[/cyan]{symbol} "
+        else:
+            prompt_str = f"[{color}]{user}@hera[/{color}]:[cyan]{cwd}[/cyan]{symbol} "
 
         try:
             cmd = Prompt.ask(prompt_str).strip()

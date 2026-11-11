@@ -55,12 +55,21 @@ class TerminalView(Vertical):
         symbol = "#" if is_root else "$"
         color = "bold red" if is_root else "bold green"
         label_widget = self.query_one("#terminal-prompt-label", Static)
-        label_widget.update(Text.assemble(
-            (f"{user}@hera", color),
-            (":", "white"),
-            (cwd, "cyan"),
-            (f"{symbol} ", "bold white")
-        ))
+        if self.engine.fs.in_chroot:
+            label_widget.update(Text.assemble(
+                ("(lfs chroot) ", "bold yellow"),
+                (f"{user}", color),
+                (":", "white"),
+                (cwd, "cyan"),
+                (f"{symbol} ", "bold white")
+            ))
+        else:
+            label_widget.update(Text.assemble(
+                (f"{user}@hera", color),
+                (":", "white"),
+                (cwd, "cyan"),
+                (f"{symbol} ", "bold white")
+            ))
 
     def on_input_submitted(self, event: Input.Submitted):
         cmd = event.value.strip()
