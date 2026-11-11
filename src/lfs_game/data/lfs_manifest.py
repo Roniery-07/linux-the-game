@@ -515,6 +515,86 @@ TOOLCHAIN_CATALOG: Dict[str, ToolchainPackage] = {
         install_path="$LFS/usr/bin",
         binaries=["gcc", "g++", "cpp", "cc"]
     ),
+
+    # --- Chapter 7: Additional Chroot Temporary Tools ---
+    "gettext": ToolchainPackage(
+        id="gettext",
+        name="Gettext",
+        version="1.0",
+        chapter=7,
+        sbu=1.5,
+        sbu_label="1,5 UPC (SBU)",
+        description="Utilitários para internacionalização e localização (NLS) do sistema no chroot.",
+        configure_flags="./configure --disable-shared",
+        build_steps="./configure --disable-shared; make; cp -v src/{msgfmt,msgmerge,xgettext} /usr/bin",
+        install_path="/usr/bin",
+        binaries=["msgfmt", "xgettext", "msgmerge", "gettext"]
+    ),
+    "bison": ToolchainPackage(
+        id="bison",
+        name="Bison",
+        version="3.8.2",
+        chapter=7,
+        sbu=0.2,
+        sbu_label="0,2 UPC (SBU)",
+        description="Gerador de analisadores sintáticos compatível com Yacc, essencial para compilações futuras.",
+        configure_flags="./configure --prefix=/usr --docdir=/usr/share/doc/bison-3.8.2",
+        build_steps="./configure --prefix=/usr --docdir=/usr/share/doc/bison-3.8.2; make; make install",
+        install_path="/usr/bin",
+        binaries=["bison", "yacc"]
+    ),
+    "perl": ToolchainPackage(
+        id="perl",
+        name="Perl",
+        version="5.44.0",
+        chapter=7,
+        sbu=0.6,
+        sbu_label="0,6 UPC (SBU)",
+        description="Practical Extraction and Report Language: interpretador poderoso exigido pelas suítes de build.",
+        configure_flags="sh Configure -des -Dprefix=/usr -Dvendorprefix=/usr -Duseshrplib -Dprivlib=/usr/lib/perl5/5.44/core_perl",
+        build_steps="sh Configure ...; make; make install",
+        install_path="/usr/bin",
+        binaries=["perl", "perl5"]
+    ),
+    "python": ToolchainPackage(
+        id="python",
+        name="Python 3",
+        version="3.14.7",
+        chapter=7,
+        sbu=0.5,
+        sbu_label="0,5 UPC (SBU)",
+        description="Ambiente de script e desenvolvimento Python 3 para utilitários do sistema moderno.",
+        configure_flags="./configure --prefix=/usr --enable-shared --without-ensurepip --without-static-libpython",
+        build_steps="./configure --prefix=/usr --enable-shared --without-ensurepip; make; make install",
+        install_path="/usr/bin",
+        binaries=["python3", "pip3", "python"]
+    ),
+    "texinfo": ToolchainPackage(
+        id="texinfo",
+        name="Texinfo",
+        version="7.2",
+        chapter=7,
+        sbu=0.2,
+        sbu_label="0,2 UPC (SBU)",
+        description="Ferramentas para leitura, escrita e conversão de manuais e documentação GNU info.",
+        configure_flags="./configure --prefix=/usr",
+        build_steps="./configure --prefix=/usr; make; make install",
+        install_path="/usr/bin",
+        binaries=["makeinfo", "info", "texi2any"]
+    ),
+    "util-linux": ToolchainPackage(
+        id="util-linux",
+        name="Util-linux",
+        version="2.41.3",
+        chapter=7,
+        sbu=0.2,
+        sbu_label="0,2 UPC (SBU)",
+        description="Coleção de utilitários de baixo nível do sistema Linux (mount, umount, dmesg, rfkill, etc.).",
+        configure_flags="./configure --libdir=/usr/lib --runstatedir=/run --disable-chfn-chsh --disable-login --disable-su --without-python",
+        build_steps="./configure ...; make; make install",
+        install_path="/usr/bin",
+        binaries=["mount", "umount", "dmesg", "more", "rfkill", "findmnt"]
+    ),
 }
 
 
@@ -530,10 +610,12 @@ def get_toolchain_package(query: str) -> Optional[ToolchainPackage]:
     q = query.strip().lower()
     if q in TOOLCHAIN_CATALOG:
         return TOOLCHAIN_CATALOG[q]
+    if q in ("python3", "python-3.14.7", "python3.14") and "python" in TOOLCHAIN_CATALOG:
+        return TOOLCHAIN_CATALOG["python"]
     for p in TOOLCHAIN_CATALOG.values():
         if p.id.lower() == q or p.name.lower() == q or p.id.replace("-", "").lower() == q:
             return p
-        if q in p.id.lower() or q in p.name.lower():
+        if q in p.id.lower() or q in p.name.lower() or any(q == b.lower() for b in p.binaries):
             return p
     return None
 
@@ -654,6 +736,61 @@ Essas ferramentas temporárias residirão em $LFS/usr/bin e formarão o ambiente
 - [bold green]lfs-status-tools[/bold green]: Exibe a lista completa de pacotes com status de compilação e SBU.
 - [bold green]lfs-compile-tools all[/bold green]: Compila em lote as ferramentas temporárias com telemetria e gestão de anomalias.
 - [bold green]lfs-compile-tools <pacote>[/bold green]: Compila um pacote temporário específico (ex: lfs-compile-tools m4).
+""",
+    7: """[bold cyan]=== LFS 13.1 - Capítulo 7: Entrando no Chroot e Construindo Ferramentas Temporárias Adicionais ===[/bold cyan]
+[yellow]Objetivo:[/yellow] Cortar o cordão umbilical com o sistema hospedeiro.
+O ambiente 'chroot' isola completamente o processo de compilação, permitindo forjar as ferramentas finais em um ambiente puro.
+
+[bold yellow]Passos Principais do Capítulo 7:[/bold yellow]
+1. [bold green]Mudando Propriedade (como root no hospedeiro):[/bold green]
+   [bold green]chown --from lfs -R root:root $LFS/{usr,var,etc,tools}[/bold green]
+   [bold green]case $(uname -m) in x86_64) chown --from lfs -R root:root $LFS/lib64 ;; esac[/bold green]
+
+2. [bold green]Montando Sistemas de Arquivos Virtuais do Núcleo:[/bold green]
+   [bold green]mkdir -pv $LFS/{dev,proc,sys,run}[/bold green]
+   [bold green]mount -v --bind /dev $LFS/dev[/bold green]
+   [bold green]mount -vt devpts devpts -o gid=5,mode=0620 $LFS/dev/pts[/bold green]
+   [bold green]mount -vt proc proc $LFS/proc[/bold green]
+   [bold green]mount -vt sysfs sysfs $LFS/sys[/bold green]
+   [bold green]mount -vt tmpfs tmpfs $LFS/run[/bold green]
+
+3. [bold green]O Ritual do Chroot (Transição Sagrada):[/bold green]
+   [bold green]chroot "$LFS" /usr/bin/env -i HOME=/root TERM="$TERM" PS1='(lfs chroot) \\u:\\w\\$ ' PATH=/usr/bin:/usr/sbin /bin/bash --login[/bold green]
+   [dim]# Seu prompt agora se torna: (lfs chroot) root:/# [/dim]
+
+4. [bold green]Criando a Árvore de Diretórios Padrão no Chroot:[/bold green]
+   [bold green]mkdir -pv /{boot,home,mnt,opt,srv}[/bold green]
+   [bold green]mkdir -pv /etc/{opt,sysconfig} /lib/firmware /media/{floppy,cdrom}[/bold green]
+   [bold green]mkdir -pv /usr/{,local/}{bin,include,lib,sbin,src}[/bold green]
+   [bold green]mkdir -pv /usr/{,local/}share/{color,dict,doc,info,locale,man}[/bold green]
+   [bold green]mkdir -pv /var/{cache,local,log,mail,opt,spool} /var/lib/{color,misc,locate}[/bold green]
+   [bold green]ln -sfv /run /var/run && ln -sfv /run/lock /var/lock[/bold green]
+   [bold green]install -dv -m 0750 /root[/bold green]
+   [bold green]install -dv -m 1777 /tmp /var/tmp[/bold green]
+   [bold green]case $(uname -m) in x86_64) ln -sfv lib /lib64 ;; esac[/bold green]
+
+5. [bold green]Criando Arquivos Essenciais e Links:[/bold green]
+   [bold green]ln -sfv /proc/self/mounts /etc/mtab[/bold green]
+   [dim]# Os arquivos /etc/passwd e /etc/group já contêm o superusuário root[/dim]
+
+6. [bold green]Compilando as Ferramentas Temporárias do Chroot:[/bold green]
+   • Gettext-1.0 (1,5 UPC)
+   • Bison-3.8.2 (0,2 UPC)
+   • Perl-5.44.0 (0,6 UPC)
+   • Python-3.14.7 (0,5 UPC)
+   • Texinfo-7.2 (0,2 UPC)
+   • Util-linux-2.41.3 (0,2 UPC)
+   [bold magenta]Comandos Auxiliares no Jogo:[/bold magenta]
+   - [bold green]lfs-compile-chroot all[/bold green]: Compila em lote as 6 ferramentas temporárias do chroot.
+   - [bold green]lfs-compile-chroot <pacote>[/bold green]: Compila uma ferramenta específica (ex: lfs-compile-chroot perl).
+   - [bold green]lfs-status-chroot[/bold green]: Exibe a telemetria e o progresso das ferramentas do chroot.
+
+7. [bold green]Limpando e Descartando o Diretório /tools:[/bold green]
+   [bold green]rm -rf /usr/share/{info,man,doc}/*[/bold green]
+   [bold green]find /usr/{lib,libexec} -name \\*.la -delete[/bold green]
+   [bold green]rm -rf /tools[/bold green]
+
+[green]Dica da IA K.E.R.N.E.L.:[/green] "O chroot é onde homens se separam de máquinas, operador. Um único passo em falso na montagem do procfs ou devpts deixará seu novo sistema mudo e cego."
 """
 }
 

@@ -172,6 +172,11 @@ class VirtualFS:
         self.compiled_packages: Set[str] = set()
         self.configured_packages: Dict[str, dict] = {}
 
+        # Act 3 Chroot State Tracking
+        self.in_chroot: bool = False
+        self.chroot_dir: str = "/mnt/lfs"
+        self.chroot_saved_host_state: Optional[dict] = None
+
         self._init_standard_tree()
 
     def _init_standard_tree(self):
@@ -186,6 +191,12 @@ class VirtualFS:
         # Standard devices
         for p in self.partitions.keys():
             self.touch(p)
+        self.touch("/dev/null")
+        self.touch("/dev/zero")
+        self.touch("/dev/console")
+        self.touch("/dev/ptmx")
+        self.mkdir("/dev/pts", parents=True)
+        self.mkdir("/dev/shm", parents=True)
 
         # /etc/passwd and /etc/group placeholders
         self.write_file("/etc/passwd", "root:x:0:0:root:/root:/bin/bash\n")
@@ -209,6 +220,21 @@ class VirtualFS:
         norm = posixpath.normpath(path)
         return "/" if norm == "/" else norm
 
+    def _to_real_path(self, path: str) -> str:
+        """Translates a virtual path into the host root coordinate system."""
+        norm = posixpath.normpath(path)
+        if not self.in_chroot:
+            return norm
+
+        chroot_base = posixpath.normpath(self.chroot_dir)
+        if norm == chroot_base or norm.startswith(chroot_base + "/"):
+            return norm
+
+        if norm == "/":
+            return chroot_base
+
+        return posixpath.normpath(posixpath.join(chroot_base, norm.lstrip("/")))
+
     def expand_vars(self, text: str) -> str:
         """Expands environment variables like $LFS or ${LFS}."""
         def repl(m: re.Match) -> str:
@@ -218,23 +244,13 @@ class VirtualFS:
         pattern = re.compile(r"\$(?:\{([a-zA-Z_][a-zA-Z0-9_]*)\}|([a-zA-Z_][a-zA-Z0-9_]*))")
         return pattern.sub(repl, text)
 
-    def _get_parent_and_basename(self, abs_path: str) -> Tuple[Optional[VirtualDirectory], str]:
-        """Returns parent VirtualDirectory and final component name."""
-        if abs_path == "/":
-            return None, ""
-        parent_path, basename = posixpath.split(abs_path)
-        parent_node = self._resolve_node(parent_path)
-        if isinstance(parent_node, VirtualDirectory):
-            return parent_node, basename
-        return None, basename
-
-    def _resolve_node(self, abs_path: str) -> Optional[VirtualInode]:
-        """Finds node at absolute path."""
-        abs_path = posixpath.normpath(abs_path)
-        if abs_path in ("", "/"):
+    def _resolve_host_node(self, real_path: str) -> Optional[VirtualInode]:
+        """Finds node at host absolute path directly from root."""
+        real_path = posixpath.normpath(real_path)
+        if real_path in ("", "/"):
             return self.root
 
-        parts = [p for p in abs_path.split("/") if p]
+        parts = [p for p in real_path.split("/") if p]
         curr = self.root
         for part in parts:
             if not isinstance(curr, VirtualDirectory):
@@ -243,6 +259,24 @@ class VirtualFS:
                 return None
             curr = curr.children[part]
         return curr
+
+    def _resolve_node(self, abs_path: str) -> Optional[VirtualInode]:
+        """Finds node at absolute path, taking chroot jail into account."""
+        real_path = self._to_real_path(abs_path)
+        return self._resolve_host_node(real_path)
+
+    def _get_parent_and_basename(self, abs_path: str) -> Tuple[Optional[VirtualDirectory], str]:
+        """Returns parent VirtualDirectory and final component name."""
+        if abs_path == "/" or (self.in_chroot and abs_path == "/"):
+            return None, ""
+        real_path = self._to_real_path(abs_path)
+        if real_path == "/":
+            return None, ""
+        parent_real, basename = posixpath.split(real_path)
+        parent_node = self._resolve_host_node(parent_real)
+        if isinstance(parent_node, VirtualDirectory):
+            return parent_node, basename
+        return None, basename
 
     def _check_perm(self, inode: VirtualInode, req: int) -> bool:
         """Checks if current_user has requested permission (read=4, write=2, exec=1)."""
@@ -291,7 +325,8 @@ class VirtualFS:
                 return True, ""
             return False, f"mkdir: não foi possível criar o diretório '{path}': Arquivo existe"
 
-        parts = [p for p in abs_path.split("/") if p]
+        real_path = self._to_real_path(abs_path)
+        parts = [p for p in real_path.split("/") if p]
         curr = self.root
         accum = ""
         created_paths = []
@@ -316,7 +351,16 @@ class VirtualFS:
                 )
                 curr.children[part] = new_dir
                 curr = new_dir
-                created_paths.append(accum)
+
+                display_p = accum
+                if self.in_chroot:
+                    chroot_base = posixpath.normpath(self.chroot_dir)
+                    if accum == chroot_base:
+                        display_p = "/"
+                    elif accum.startswith(chroot_base + "/"):
+                        rel = accum[len(chroot_base):]
+                        display_p = rel if rel.startswith("/") else "/" + rel
+                created_paths.append(display_p)
 
         msg = ""
         if verbose and created_paths:
@@ -399,6 +443,14 @@ class VirtualFS:
             return False, f"cat: {path}: É um diretório"
         if not self._check_perm(node, 4):
             return False, f"cat: {path}: Permissão negada"
+
+        if isinstance(node, VirtualFile) and node.content.startswith("# Symlink to "):
+            target_link = node.content.split("# Symlink to ", 1)[1].strip()
+            if target_link not in (path, abs_path):
+                ok_link, link_content = self.read_file(target_link)
+                if ok_link:
+                    return True, link_content
+
         return True, node.content
 
     def rm(self, path: str, recursive: bool = False, force: bool = False) -> Tuple[bool, str]:
@@ -483,7 +535,14 @@ class VirtualFS:
         date_str = time.strftime("%b %d %H:%M", time.localtime(inode.mtime))
         return f"{kind}{mode_str} 1 {inode.owner} {inode.group} {size:>8} {date_str} {display_name}"
 
-    def chown(self, path: str, owner_group: str, recursive: bool = False, verbose: bool = False) -> Tuple[bool, str]:
+    def chown(
+        self,
+        path: str,
+        owner_group: str,
+        recursive: bool = False,
+        verbose: bool = False,
+        from_owner: Optional[str] = None
+    ) -> Tuple[bool, str]:
         """Changes owner and group of file or directory (e.g. 'lfs' or 'lfs:lfs')."""
         if self.current_user != "root":
             return False, f"chown: alterando o proprietário de '{path}': Operação não permitida"
@@ -503,13 +562,16 @@ class VirtualFS:
         modified = []
 
         def apply_chown(curr_node: VirtualInode, curr_path: str):
-            if new_owner:
-                curr_node.owner = new_owner
-            if new_group:
-                curr_node.group = new_group
-            elif new_owner and not new_group:
-                curr_node.group = self.users.get(new_owner, {}).get("group", new_owner)
-            modified.append(f"propriedade de '{curr_path}' alterada para {curr_node.owner}:{curr_node.group}")
+            if from_owner is not None and curr_node.owner != from_owner:
+                pass
+            else:
+                if new_owner:
+                    curr_node.owner = new_owner
+                if new_group:
+                    curr_node.group = new_group
+                elif new_owner and not new_group:
+                    curr_node.group = self.users.get(new_owner, {}).get("group", new_owner)
+                modified.append(f"propriedade de '{curr_path}' alterada para {curr_node.owner}:{curr_node.group}")
             if recursive and isinstance(curr_node, VirtualDirectory):
                 for child_name, child in curr_node.children.items():
                     apply_chown(child, posixpath.join(curr_path, child_name))
@@ -519,7 +581,7 @@ class VirtualFS:
         return True, msg
 
     def chmod(self, path: str, mode_expr: str, recursive: bool = False, verbose: bool = False) -> Tuple[bool, str]:
-        """Changes mode permissions (e.g. 'a+wt', '755', '644')."""
+        """Changes mode permissions (e.g. 'a+wt', '755', '644', '0750')."""
         abs_path = self.resolve_path(path)
         node = self._resolve_node(abs_path)
         if not node:
@@ -529,9 +591,12 @@ class VirtualFS:
             return False, f"chmod: alterando as permissões de '{path}': Operação não permitida"
 
         new_mode: Optional[int] = None
-        if mode_expr.isdigit():
+        clean_expr = mode_expr.strip()
+        if clean_expr.startswith("0o"):
+            clean_expr = clean_expr[2:]
+        if clean_expr.isdigit():
             try:
-                new_mode = int(mode_expr, 8)
+                new_mode = int(clean_expr, 8)
             except ValueError:
                 return False, f"chmod: modo inválido: '{mode_expr}'"
         elif "a+wt" in mode_expr or "+t" in mode_expr:
@@ -610,18 +675,87 @@ class VirtualFS:
         part.is_swap_active = False
         return True, ""
 
-    def mount(self, device: str, mount_point: str, fstype: str = "ext4", verbose: bool = False) -> Tuple[bool, str]:
-        """Mounts a filesystem partition to a mount point."""
+    def _generate_mounts_file(self) -> str:
+        """Generates mock contents of /proc/self/mounts."""
+        lines = [
+            "rootfs / rootfs rw 0 0",
+            "/dev/sda3 / ext4 rw,relatime 0 0",
+            "proc /proc proc rw,nosuid,nodev,noexec,relatime 0 0",
+            "sysfs /sys sysfs rw,nosuid,nodev,noexec,relatime 0 0",
+            "tmpfs /run tmpfs rw,nosuid,nodev,relatime,mode=755 0 0",
+            "devpts /dev/pts devpts rw,nosuid,noexec,relatime,gid=5,mode=620 0 0",
+        ]
+        return "\n".join(lines) + "\n"
+
+    def mount(
+        self,
+        device: str,
+        mount_point: str,
+        fstype: str = "ext4",
+        verbose: bool = False,
+        is_bind: bool = False,
+        options: str = ""
+    ) -> Tuple[bool, str]:
+        """Mounts a filesystem partition, bind mount, or kernel virtual filesystem."""
         if self.current_user != "root":
             return False, "mount: apenas o superusuário pode executar 'mount'."
 
         norm_mp = self.resolve_path(mount_point)
-        if not self.exists(norm_mp):
+        real_mp = self._to_real_path(norm_mp)
+
+        mp_node = self._resolve_host_node(real_mp)
+        if not mp_node:
             return False, f"mount: ponto de montagem '{mount_point}' não existe"
 
-        if not self.is_dir(norm_mp):
+        if not isinstance(mp_node, VirtualDirectory):
             return False, f"mount: '{mount_point}' não é um diretório"
 
+        if real_mp in self.mounts or norm_mp in self.mounts:
+            return False, f"mount: {mount_point} já está montado"
+
+        # 1. Bind mount (e.g. mount --bind /dev $LFS/dev)
+        if is_bind or fstype == "bind":
+            norm_dev = self.resolve_path(device)
+            real_dev = self._to_real_path(norm_dev)
+            src_node = self._resolve_host_node(real_dev) or self._resolve_host_node(norm_dev)
+            if not src_node:
+                self.mkdir(device, parents=True)
+                src_node = self._resolve_host_node(real_dev) or self._resolve_host_node(norm_dev)
+
+            if isinstance(src_node, VirtualDirectory) and isinstance(mp_node, VirtualDirectory):
+                for child_name, child_node in src_node.children.items():
+                    mp_node.children[child_name] = child_node
+
+            self.mounts[real_mp] = device
+            self.mounts[norm_mp] = device
+            msg = f"mount: {device} montado em {mount_point} (montagem vinculada)." if verbose else ""
+            return True, msg
+
+        # 2. Kernel Virtual Filesystems (proc, sysfs, tmpfs, devpts)
+        virtual_types = {"proc", "sysfs", "tmpfs", "devpts", "devtmpfs", "ramfs"}
+        if fstype in virtual_types or device in virtual_types:
+            actual_type = fstype if fstype in virtual_types else device
+            if isinstance(mp_node, VirtualDirectory):
+                if actual_type == "proc":
+                    self.touch(f"{norm_mp}/cpuinfo")
+                    self.touch(f"{norm_mp}/meminfo")
+                    self.mkdir(f"{norm_mp}/self", parents=True)
+                    self.write_file(f"{norm_mp}/self/mounts", self._generate_mounts_file())
+                elif actual_type == "sysfs":
+                    self.mkdir(f"{norm_mp}/devices", parents=True)
+                    self.mkdir(f"{norm_mp}/block", parents=True)
+                    self.mkdir(f"{norm_mp}/bus", parents=True)
+                elif actual_type == "devpts":
+                    self.touch(f"{norm_mp}/ptmx")
+                elif actual_type == "tmpfs":
+                    pass
+
+            self.mounts[real_mp] = device
+            self.mounts[norm_mp] = device
+            msg = f"mount: {device} montado em {mount_point} (tipo {actual_type})." if verbose else ""
+            return True, msg
+
+        # 3. Partition block device
         if device not in self.partitions:
             return False, f"mount: dispositivo especial '{device}' não existe"
 
@@ -629,12 +763,10 @@ class VirtualFS:
         if not part.filesystem:
             return False, f"mount: tipo de sistema de arquivos incorreto, opção inválida, superbloco inválido em {device}"
 
-        if norm_mp in self.mounts:
-            return False, f"mount: {norm_mp} já está montado"
-
+        self.mounts[real_mp] = device
         self.mounts[norm_mp] = device
         part.mount_point = norm_mp
-        msg = f"mount: {device} montado em {norm_mp}." if verbose else ""
+        msg = f"mount: {device} montado em {mount_point}." if verbose else ""
         return True, msg
 
     def umount(self, target: str, verbose: bool = False) -> Tuple[bool, str]:
@@ -807,6 +939,117 @@ class VirtualFS:
                     v = self.expand_vars(v.strip().strip("\"'"))
                     self.env[k] = v
 
+    def enter_chroot(self, target_path: str = "/mnt/lfs") -> Tuple[bool, str]:
+        """Enters chroot environment rooted at target_path."""
+        if self.in_chroot:
+            return False, "chroot: já está operando dentro de um ambiente chroot ativo"
+
+        abs_target = self.resolve_path(target_path)
+        node = self._resolve_node(abs_target)
+        if not node:
+            return False, f"chroot: não foi possível mudar o diretório raiz para '{target_path}': Arquivo ou diretório inexistente"
+        if not isinstance(node, VirtualDirectory):
+            return False, f"chroot: não foi possível mudar o diretório raiz para '{target_path}': Não é um diretório"
+
+        self.chroot_saved_host_state = {
+            "current_user": self.current_user,
+            "cwd": self.cwd,
+            "env": dict(self.env),
+            "user_stack": list(self.user_stack),
+        }
+        self.chroot_dir = abs_target
+        self.in_chroot = True
+        self.current_user = "root"
+        self.cwd = "/"
+        self.user_stack = []
+
+        self.env = {
+            "HOME": "/root",
+            "TERM": self.env.get("TERM", "xterm-256color"),
+            "PS1": "(lfs chroot) \\u:\\w\\$ ",
+            "PATH": "/usr/bin:/usr/sbin",
+            "USER": "root",
+            "LOGNAME": "root",
+            "PWD": "/",
+        }
+
+        # Check for virtual kernel filesystems (/dev, /proc, /sys)
+        missing_mounts = []
+        for vfs in ["dev", "proc", "sys"]:
+            expected_mp = posixpath.join(abs_target, vfs)
+            if expected_mp not in self.mounts and not any(m == expected_mp or m.endswith(f"/{vfs}") for m in self.mounts):
+                missing_mounts.append(f"/{vfs}")
+
+        warn_msg = ""
+        if missing_mounts:
+            warn_msg = (
+                f"\n[bold yellow]⚠ ALERTA (K.E.R.N.E.L.): Montagens virtuais essenciais ausentes: {', '.join(missing_mounts)}![/bold yellow]\n"
+                f"[yellow]O ambiente chroot foi isolado sem as interfaces do kernel (/dev, /proc, /sys).\n"
+                f"Comandos que dependem de descritores de dispositivos ou inspeção de processos podem falhar.[/yellow]"
+            )
+
+        return True, (
+            f"[bold green]Adentrando o ambiente chroot em '{target_path}'...[/bold green]\n"
+            f"[dim]O cordão umbilical com o sistema anfitrião foi cortado.\n"
+            f"Nova raiz '/': {abs_target}\n"
+            f"Usuário: root | PATH: /usr/bin:/usr/sbin[/dim]{warn_msg}"
+        )
+
+    def exit_chroot(self) -> Tuple[bool, str]:
+        """Exits chroot environment back to host system."""
+        if not self.in_chroot:
+            return False, "exit: nenhuma sessão chroot ativa"
+
+        self.in_chroot = False
+        saved = getattr(self, "chroot_saved_host_state", None)
+        if saved:
+            self.current_user = saved.get("current_user", "root")
+            self.cwd = saved.get("cwd", self.chroot_dir)
+            self.env = saved.get("env", {})
+            self.user_stack = saved.get("user_stack", [])
+        else:
+            self.current_user = "root"
+            self.cwd = self.chroot_dir
+
+        return True, f"logout (saindo do ambiente chroot para o sistema hospedeiro em {self.cwd})"
+
+    def install(
+        self,
+        targets: List[str],
+        dir_mode: bool = False,
+        mode: Optional[int] = None,
+        verbose: bool = False
+    ) -> Tuple[bool, str]:
+        """Simulates Unix 'install' utility."""
+        if not targets:
+            return False, "install: operandos ausentes"
+
+        msgs = []
+        if dir_mode:
+            for t in targets:
+                ok, m = self.mkdir(t, parents=True)
+                if not ok:
+                    return False, m
+                if mode is not None:
+                    self.chmod(t, format(mode, "o"))
+                msgs.append(f"install: criando diretório '{t}'")
+            return True, "\n".join(msgs) if verbose else ""
+        else:
+            if len(targets) == 1:
+                return False, f"install: operando de arquivo de destino ausente após '{targets[0]}'"
+            srcs = targets[:-1]
+            dest = targets[-1]
+            for s in srcs:
+                content = ""
+                if self.exists(s):
+                    _, content = self.read_file(s)
+                dst_path = posixpath.join(dest, posixpath.basename(s)) if self.is_dir(dest) else dest
+                self.write_file(dst_path, content)
+                if mode is not None:
+                    self.chmod(dst_path, format(mode, "o"))
+                msgs.append(f"'{s}' -> '{dst_path}'")
+            return True, "\n".join(msgs) if verbose else ""
+
     def to_dict(self) -> dict:
         """Serializes filesystem state to dict."""
         return {
@@ -823,6 +1066,9 @@ class VirtualFS:
             "installed_tools": dict(self.installed_tools),
             "compiled_packages": list(self.compiled_packages),
             "configured_packages": self.configured_packages,
+            "in_chroot": self.in_chroot,
+            "chroot_dir": self.chroot_dir,
+            "chroot_saved_host_state": self.chroot_saved_host_state,
         }
 
     @classmethod
@@ -842,6 +1088,9 @@ class VirtualFS:
         fs.installed_tools = data.get("installed_tools", {})
         fs.compiled_packages = set(data.get("compiled_packages", []))
         fs.configured_packages = data.get("configured_packages", {})
+        fs.in_chroot = data.get("in_chroot", False)
+        fs.chroot_dir = data.get("chroot_dir", "/mnt/lfs")
+        fs.chroot_saved_host_state = data.get("chroot_saved_host_state", None)
         return fs
 
     def install_tool(self, name: str, path: str, content: str = "#!/bin/sh\n# LFS virtual binary\n", mode: int = 0o755) -> bool:

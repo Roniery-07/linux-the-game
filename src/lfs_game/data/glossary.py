@@ -1000,22 +1000,105 @@ GLOSSARY_ENTRIES: List[GlossaryEntry] = [
         term="chroot",
         name="chroot - Mudança do Diretório Raiz de Processos (Change Root)",
         category="Conceitos do Sistema & Chroot",
-        syntax="chroot \"$LFS\" /usr/bin/env -i ... /bin/bash --login",
+        syntax="chroot \"$LFS\" /usr/bin/env -i HOME=/root TERM=\"$TERM\" PS1='(lfs chroot) \\u:\\w\\$ ' PATH=/usr/bin:/usr/sbin /bin/bash --login",
         what_it_does=(
             "Altera o diretório raiz ('/') aparente para o processo atual e todos os seus processos-filhos. "
-            "Um processo aprisionado em chroot não consegue acessar nenhum arquivo localizado fora da nova raiz."
+            "Um processo confinado em chroot não consegue acessar nenhum arquivo localizado fora da nova raiz delimitada."
         ),
         why_in_lfs=(
-            "É o grande clímax do LFS (Capítulo 7): ao entrar em chroot em $LFS, o diretório $LFS passa a ser "
-            "a verdadeira raiz ('/') do terminal. A partir deste ponto, o sistema operacional hospedeiro fica "
-            "completamente invisível e inacessível, permitindo compilar o sistema final em isolamento total."
+            "É o grande ritual e clímax do LFS (Capítulo 7): ao entrar em chroot em $LFS, cortamos definitivamente "
+            "o cordão umbilical com a distribuição hospedeira. A partir deste ponto, o diretório $LFS passa a ser "
+            "a verdadeira raiz ('/') do terminal, e todas as ferramentas temporárias recém-compiladas passam a construir "
+            "o sistema operacional final em isolamento estéril completo."
         ),
         danger_if_missed=(
-            "Tentar compilar os pacotes do Capítulo 8 sem estar dentro do ambiente chroot fará com que o 'make install' "
-            "substitua arquivos e bibliotecas da sua distribuição hospedeira real, destruindo o sistema em que você trabalha."
+            "Se você não usar o chroot e tentar compilar os pacotes do Capítulo 8 no terminal comum, os comandos "
+            "'make install' sobrescreverão as bibliotecas essenciais (/lib, /usr/lib) da sua própria distribuição "
+            "hospedeira, destruindo completamente a máquina onde você está trabalhando!"
         ),
-        related_terms=["/dev", "/proc", "/sys", "su", "env"],
-        aliases=["entrar-chroot"],
+        related_terms=["bind-mount", "procfs", "sysfs", "devtmpfs", "su", "env"],
+        aliases=["entrar-chroot", "change-root"],
+    ),
+    GlossaryEntry(
+        term="bind-mount",
+        name="bind-mount - Montagem Vinculada de Diretórios (mount --bind)",
+        category="Discos & Montagens",
+        syntax="mount -v --bind /dev $LFS/dev",
+        what_it_does=(
+            "Cria uma montagem vinculada (bind mount), que espelha uma subárvore de diretórios existente "
+            "em outro local da hierarquia de arquivos sem duplicar o espaço em disco ou copiar dados."
+        ),
+        why_in_lfs=(
+            "No Capítulo 7, usamos 'mount --bind /dev $LFS/dev' para compartilhar os nós de dispositivos "
+            "de hardware da máquina anfitriã com o ambiente isolado do chroot, permitindo que processos dentro "
+            "do chroot acessem /dev/null, /dev/zero, /dev/console e terminais virtuais sem criar discos extras."
+        ),
+        danger_if_missed=(
+            "Sem o bind mount de /dev, comandos que redirecionam para /dev/null (como quase todo script de build) "
+            "falharão com erro fatal, e testes que dependem de pseudoterminais (/dev/pts) serão abortados."
+        ),
+        related_terms=["mount", "chroot", "/dev", "devtmpfs"],
+        aliases=["mount --bind", "--bind", "bind"],
+    ),
+    GlossaryEntry(
+        term="procfs",
+        name="procfs - Pseudo-sistema de Arquivos de Processos (/proc)",
+        category="Conceitos do Sistema & Chroot",
+        syntax="mount -vt proc proc $LFS/proc",
+        what_it_does=(
+            "Sistema de arquivos virtual gerado dinamicamente na memória RAM pelo kernel Linux. "
+            "Funciona como uma interface direta de controle e leitura de processos, memória, CPU e parâmetros do kernel."
+        ),
+        why_in_lfs=(
+            "Montado em $LFS/proc antes de entrar no chroot para que utilitários de diagnóstico (ps, top), montadores de pacotes "
+            "e suítes de teste de compiladores consigam consultar estatísticas de CPU e memória em tempo real."
+        ),
+        danger_if_missed=(
+            "Testes de sanidade e suítes de testes do Coreutils, Glibc e Perl abortarão imediatamente caso não encontrem "
+            "/proc montado, impedindo a validação da integridade das ferramentas."
+        ),
+        related_terms=["/proc", "sysfs", "chroot", "mount"],
+        aliases=["proc", "/proc"],
+    ),
+    GlossaryEntry(
+        term="sysfs",
+        name="sysfs - Árvore de Dispositivos e Drivers do Kernel (/sys)",
+        category="Conceitos do Sistema & Chroot",
+        syntax="mount -vt sysfs sysfs $LFS/sys",
+        what_it_does=(
+            "Estrutura hierárquica em memória RAM exposta pelo kernel Linux para representar dispositivos físicos e virtuais, "
+            "barramentos (PCI, USB), drivers e subsistemas de hardware do computador."
+        ),
+        why_in_lfs=(
+            "Essencial dentro do chroot para que gerenciadores de dispositivos (udev/eudev) e ferramentas de configuração "
+            "de boot e disco (como fdisk, GRUB e util-linux) consigam descobrir e enumerar o hardware da estação."
+        ),
+        danger_if_missed=(
+            "Sem o sysfs montado em $LFS/sys, instaladores de bootloader (GRUB) e detectores de rede não conseguirão "
+            "identificar os discos nem as placas de rede do sistema."
+        ),
+        related_terms=["/sys", "procfs", "devtmpfs", "chroot"],
+        aliases=["sys", "/sys"],
+    ),
+    GlossaryEntry(
+        term="devtmpfs",
+        name="devtmpfs - Sistema de Arquivos de Nós de Dispositivos (/dev)",
+        category="Conceitos do Sistema & Chroot",
+        syntax="mount -v --bind /dev $LFS/dev",
+        what_it_does=(
+            "Instância em memória mantida pelo kernel Linux onde nós de dispositivos especiais (device nodes) "
+            "são criados automaticamente conforme placas, discos e interfaces são detectados pelo sistema."
+        ),
+        why_in_lfs=(
+            "Permite aos binários temporários do chroot comunicar-se com o hardware através dos nós em /dev, "
+            "incluindo dispositivos fundamentais como /dev/null, /dev/zero, /dev/ptmx e partições /dev/sda."
+        ),
+        danger_if_missed=(
+            "Se o devtmpfs não estiver acessível, nenhum processo conseguirá abrir canais de entrada/saída de dispositivos "
+            "ou terminais, paralisando a compilação do sistema."
+        ),
+        related_terms=["/dev", "bind-mount", "chroot"],
+        aliases=["dev", "/dev", "devnodes"],
     ),
     GlossaryEntry(
         term="/dev",
@@ -1180,6 +1263,27 @@ GLOSSARY_ENTRIES: List[GlossaryEntry] = [
         ),
         related_terms=["ls", "grep"],
         aliases=[],
+    ),
+    GlossaryEntry(
+        term="install",
+        name="install - Cópia e Configuração Atômica de Arquivos e Pastas",
+        category="Básico & Hospedeiro",
+        syntax="install -dv -m 0750 /root && install -dv -m 1777 /tmp /var/tmp",
+        what_it_does=(
+            "Combina operações de criação de diretórios (mkdir), cópia de arquivos (cp), "
+            "definição de dono (chown) e atribuição de permissões (chmod) em uma única operação atômica e segura."
+        ),
+        why_in_lfs=(
+            "No Capítulo 7.5, é empregado para criar os diretórios de segurança do sistema: '/root' com permissão "
+            "restrita 0750 (apenas superusuário) e '/tmp' / '/var/tmp' com modo 1777 (sticky bit ativo, permitindo "
+            "que todos criem arquivos temporários, mas somente os donos possam apagá-los)."
+        ),
+        danger_if_missed=(
+            "Se /tmp for criado com 'mkdir' padrão (0755) em vez de 'install -m 1777', qualquer usuário ou processo "
+            "poderá deletar arquivos temporários de outros usuários, abrindo vulnerabilidades críticas de segurança."
+        ),
+        related_terms=["mkdir", "chmod", "cp", "chown"],
+        aliases=["install -d", "install -m", "instalar"],
     ),
 ]
 

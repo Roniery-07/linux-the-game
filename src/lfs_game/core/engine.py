@@ -84,6 +84,15 @@ class GameEngine:
 
         return res
 
+    def get_prompt(self) -> str:
+        """Returns standard shell prompt string."""
+        user = self.fs.current_user
+        cwd = self.fs.pwd()
+        symbol = "#" if user == "root" else "$"
+        if self.fs.in_chroot:
+            return f"(lfs chroot) {user}:{cwd}{symbol} "
+        return f"{user}@hera:{cwd}{symbol} "
+
     def to_dict(self) -> dict:
         return {
             "fs": self.fs.to_dict(),
