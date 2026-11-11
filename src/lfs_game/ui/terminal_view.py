@@ -14,6 +14,7 @@ if TYPE_CHECKING:
 
 COMMON_COMMANDS = [
     "help", "clear", "hint", "status", "coffee", "cafe", "lfs-book", "lfs-get-sources",
+    "glossario", "glossary", "explain", "explicar", "oquee", "didactic", "didatico",
     "ls", "cd", "pwd", "mkdir", "rm", "touch", "cat", "echo", "export", "env",
     "whoami", "su", "exit", "useradd", "groupadd", "chown", "chmod",
     "fdisk", "cfdisk", "mkfs.ext4", "mkswap", "swapon", "swapoff", "mount", "umount",
@@ -41,7 +42,7 @@ class TerminalView(Vertical):
 ║     O ÚLTIMO KERNEL: LINUX FROM SCRATCH RPG (LFS 13.1 pt_BR)         ║
 ║         Terminal de Emergência - Estação Orbital Hera (2142)          ║
 ╚═══════════════════════════════════════════════════════════════════════╝[/bold cyan]
-[dim]Digite '[bold green]help[/bold green]' para ver comandos ou '[bold yellow]hint[/bold yellow]' para orientações imediatas.[/dim]
+[dim]Digite '[bold green]help[/bold green]' para comandos, '[bold yellow]glossario[/bold yellow]' para conceitos ou '[bold yellow]hint[/bold yellow]' para orientações.[/dim]
 """
         log.write(banner)
         self.update_prompt_label()

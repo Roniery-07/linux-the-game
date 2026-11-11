@@ -69,6 +69,7 @@ class ShellParser:
     def __init__(self, engine: GameEngine):
         self.engine = engine
         self.dir_stack: List[str] = []
+        self.didactic_enabled: bool = True
 
     def execute(self, command_line: str) -> CommandResult:
         """Executes a full command line string, handling && and ; chains."""
@@ -163,8 +164,18 @@ class ShellParser:
                 if not last_res.success:
                     return last_res
                 curr_input = last_res.output
+            if self.didactic_enabled and last_res.success:
+                insight = self._get_didactic_insight(cmd_str)
+                if insight:
+                    last_res.output = (last_res.output + "\n" if last_res.output else "") + insight
             return last_res
-        return self._execute_stage(cmd_str, stdin_data=stdin_data)
+
+        res = self._execute_stage(cmd_str, stdin_data=stdin_data)
+        if self.didactic_enabled and res.success:
+            insight = self._get_didactic_insight(cmd_str)
+            if insight:
+                res.output = (res.output + "\n" if res.output else "") + insight
+        return res
 
     def _execute_stage(self, stage_str: str, stdin_data: str = "") -> CommandResult:
         """Executes a single pipeline stage with optional input data and redirection."""
@@ -225,6 +236,13 @@ class ShellParser:
         else:
             handler_name = f"_cmd_{cmd.replace('.', '_').replace('-', '_')}"
             handler = getattr(self, handler_name, None)
+            if not handler and cmd.lower() in (
+                "explain", "explicar", "oquee",
+                "glossario", "glossary",
+                "didactic", "didatico",
+                "help", "hint", "status", "save", "load", "clear", "exit"
+            ):
+                handler = getattr(self, f"_cmd_{cmd.lower().replace('.', '_').replace('-', '_')}", None)
             if handler:
                 try:
                     result = handler(args, stdin_data=stdin_data)
@@ -269,9 +287,178 @@ class ShellParser:
 [bold green]Controle do Hospedeiro:[/bold green] export, env, whoami, su, exit, useradd, groupadd, chown, chmod
 [bold green]Discos & Partições:[/bold green] fdisk, cfdisk, mkfs.ext4, mkswap, swapon, swapoff, mount, umount
 [bold green]LFS 13.1 Toolchain:[/bold green] lfs-book [cap], lfs-status-tools, lfs-compile-tools [all|pacote], ./configure, make, readelf, grep, patch, sed, md5sum, tar
+[bold green]Glossário Didático:[/bold green] glossario [termo|cat], explain <termo>, didactic [on|off]
 [bold green]Sobrevivência & Anomalias:[/bold green] lfs-resolve [número], anomaly, hint, status, coffee, save [nome], load [nome], clear, exit
 """
         return CommandResult(output=help_text, success=True, system_event="HELP")
+
+    def _cmd_glossario(self, args: List[str]) -> CommandResult:
+        from ..data.glossary import glossary_manager
+        if args:
+            query = " ".join(args).strip()
+            if not query:
+                return CommandResult(output=glossary_manager.format_index(), success=True)
+            # 1. Try direct entry lookup
+            entry = glossary_manager.get(query)
+            if entry:
+                return CommandResult(output=glossary_manager.format_entry(entry), success=True)
+            # 2. Try category filter
+            cats = glossary_manager.list_by_category()
+            clean_query = glossary_manager._strip_accents(query.lower())
+            for cat in cats:
+                clean_cat = glossary_manager._strip_accents(cat.lower())
+                if clean_query in clean_cat or query.lower() in cat.lower():
+                    return CommandResult(output=glossary_manager.format_index(category_filter=cat), success=True)
+            # 3. Try search
+            matches = glossary_manager.search(query)
+            if matches:
+                if len(matches) == 1:
+                    return CommandResult(output=glossary_manager.format_entry(matches[0]), success=True)
+                match_names = ", ".join(f"'{m.term}'" for m in matches[:8])
+                return CommandResult(
+                    output=f"[yellow]Termo '{query}' não encontrado diretamente.[/yellow]\nCorrespondências: {match_names}\nUse '[bold green]explain <termo>[/bold green]' para ler a explicação detalhada.",
+                    success=True,
+                )
+            return CommandResult(
+                output=f"[red]Nenhum termo ou categoria correspondente a '{query}' no glossário.[/red]\nDigite '[bold cyan]glossario[/bold cyan]' para ver todos os termos catalogados.",
+                success=False,
+            )
+        return CommandResult(output=glossary_manager.format_index(), success=True)
+
+    def _cmd_glossary(self, args: List[str]) -> CommandResult:
+        return self._cmd_glossario(args)
+
+    def _cmd_explain(self, args: List[str]) -> CommandResult:
+        from ..data.glossary import glossary_manager
+        query = " ".join(args).strip() if args else ""
+        if not query:
+            msg = (
+                "[bold yellow]Uso:[/bold yellow] explain <termo>\n"
+                "Exemplos: 'explain export', 'explain $LFS', 'explain sysroot', 'explain readelf'\n"
+                "Digite '[bold cyan]glossario[/bold cyan]' para ver o índice completo de termos."
+            )
+            return CommandResult(output=msg, success=True)
+        entry = glossary_manager.get(query)
+        if entry:
+            return CommandResult(output=glossary_manager.format_entry(entry), success=True)
+        matches = glossary_manager.search(query)
+        if matches:
+            if len(matches) == 1:
+                return CommandResult(output=glossary_manager.format_entry(matches[0]), success=True)
+            match_names = ", ".join(f"'{m.term}'" for m in matches[:8])
+            return CommandResult(
+                output=f"[yellow]Termo '{query}' não encontrado diretamente.[/yellow]\nVocê quis dizer: {match_names}?\nUse '[bold green]explain <termo>[/bold green]' para ler a explicação didática.",
+                success=True,
+            )
+        return CommandResult(
+            output=f"[red]Termo '{query}' não encontrado no glossário.[/red]\nDigite '[bold cyan]glossario[/bold cyan]' para ver todos os termos catalogados.",
+            success=False,
+        )
+
+    def _cmd_explicar(self, args: List[str]) -> CommandResult:
+        return self._cmd_explain(args)
+
+    def _cmd_oquee(self, args: List[str]) -> CommandResult:
+        return self._cmd_explain(args)
+
+    def _cmd_didactic(self, args: List[str]) -> CommandResult:
+        if not args:
+            status = "[bold green]ATIVADO (ON)[/bold green]" if self.didactic_enabled else "[bold yellow]DESATIVADO (OFF)[/bold yellow]"
+            msg = (
+                f"[bold cyan]Modo Didático LFS:[/bold cyan] {status}\n"
+                "Quando ativado, exibe insights pedagógicos automáticos após comandos arquiteturais vitais.\n"
+                "Use '[bold green]didactic on[/bold green]' para ativar ou '[bold green]didactic off[/bold green]' para desativar."
+            )
+            return CommandResult(output=msg, success=True)
+        opt = args[0].lower().strip()
+        if opt in ("on", "1", "true", "ativar", "ligar"):
+            self.didactic_enabled = True
+            return CommandResult(
+                output="[bold green]✓ Modo Didático ATIVADO![/bold green] Dicas educacionais de arquitetura LFS serão exibidas após comandos vitais.",
+                success=True,
+                state_changed=True,
+            )
+        if opt in ("off", "0", "false", "desativar", "desligar"):
+            self.didactic_enabled = False
+            return CommandResult(
+                output="[bold yellow]✓ Modo Didático DESATIVADO.[/bold yellow] Dicas automáticas foram silenciadas. Use 'didactic on' para reativar a qualquer momento.",
+                success=True,
+                state_changed=True,
+            )
+        return CommandResult(output="Uso: didactic [on|off]", success=False)
+
+    def _cmd_didatico(self, args: List[str]) -> CommandResult:
+        return self._cmd_didactic(args)
+
+    def _get_didactic_insight(self, cmd_str: str) -> Optional[str]:
+        """Returns a didactic insight string if the command executed an architectural milestone."""
+        c = cmd_str.strip()
+        if not c:
+            return None
+
+        # Ignore non-architectural commands
+        tokens = c.split()
+        first = tokens[0] if tokens else ""
+        if first in (
+            "help", "glossario", "glossary", "explain", "explicar", "oquee",
+            "didactic", "didatico", "status", "hint", "coffee", "cafe",
+            "save", "load", "clear", "exit", "pwd", "ls", "echo"
+        ):
+            return None
+
+        # 1. $LFS export or assignment
+        if re.search(r"\bexport\s+LFS\s*=", c) or (c.startswith("LFS=") and "/mnt" in c):
+            return "💡 [bold cyan]Insight LFS ($LFS):[/bold cyan] Definir $LFS é o alicerce do projeto. Sem essa variável apontando para a partição montada, comandos subsequentes poderiam tentar escrever na raiz do sistema hospedeiro!"
+
+        # 2. $LFS_TGT export or assignment
+        if re.search(r"\bexport\s+LFS_TGT\s*=", c) or c.startswith("LFS_TGT="):
+            return "💡 [bold cyan]Insight LFS ($LFS_TGT):[/bold cyan] A tupla de arquitetura com sufixo customizado '-lfs-' assegura que a toolchain do GNU reconheça o cross-compiler e não use bibliotecas do hospedeiro."
+
+        # 3. $PATH export with tools/bin
+        if ("PATH=" in c or "export PATH" in c) and "tools/bin" in c:
+            return "💡 [bold cyan]Insight LFS ($PATH):[/bold cyan] Adicionar $LFS/tools/bin no início do PATH garante que os novos utilitários compilados tenham prioridade imediata sobre os programas do hospedeiro."
+
+        # 4. LC_ALL=POSIX
+        if "LC_ALL=POSIX" in c:
+            return "💡 [bold cyan]Insight LFS (LC_ALL=POSIX):[/bold cyan] A localidade POSIX padroniza a ordenação de caracteres em ASCII puro, evitando que regras regionais de idiomas quebrem expressões regulares e Makefiles."
+
+        # 5. mount command (especially on LFS)
+        if re.search(r"\bmount\b", c) and ("$LFS" in c or "/mnt/lfs" in c):
+            return "💡 [bold cyan]Insight LFS (mount):[/bold cyan] A partição foi acoplada ao sistema de arquivos! Todos os arquivos gravados sob o ponto de montagem agora vão diretamente para o disco permanente do LFS."
+
+        # 6. su - lfs
+        if re.search(r"\bsu\s+-\s+lfs\b", c):
+            return "💡 [bold cyan]Insight LFS (su - lfs):[/bold cyan] O '-' (hífen) inicia um login shell limpo, descartando variáveis do root que poderiam contaminar a compilação do LFS."
+
+        # 7. useradd lfs
+        if re.search(r"\buseradd\b.*lfs\b", c):
+            return "💡 [bold cyan]Insight LFS (useradd lfs):[/bold cyan] Compilar como um usuário sem privilégios protege seu sistema principal contra falhas catastróficas ou erros destrutivos em Makefiles."
+
+        # 8. mkfs.ext4
+        if "mkfs.ext4" in c or "mkfs -t ext4" in c:
+            return "💡 [bold cyan]Insight LFS (mkfs.ext4):[/bold cyan] A partição foi formatada em EXT4 com journaling e suporte a metadados POSIX, pronta para receber a árvore de diretórios do novo sistema operacional."
+
+        # 9. mkswap or swapon
+        if re.search(r"\b(mkswap|swapon)\b", c):
+            return "💡 [bold cyan]Insight LFS (swap):[/bold cyan] A memória swap fornece paginação em disco, impedindo que o compilador GCC seja abortado por falta de memória RAM durante compilações pesadas."
+
+        # 10. configure script
+        if re.search(r"(^|\s)(\./|\.\./|/)configure\b", c):
+            return "💡 [bold cyan]Insight LFS (configure):[/bold cyan] O script inspeciona os recursos do hardware e monta os Makefiles. Compilar em um diretório 'build' separado mantém o código-fonte imaculado."
+
+        # 11. make with DESTDIR
+        if "DESTDIR=" in c:
+            return "💡 [bold cyan]Insight LFS (DESTDIR):[/bold cyan] DESTDIR redireciona a raiz física de instalação para $LFS sem modificar os caminhos lógicos internos fixados pelo --prefix nos binários."
+
+        # 12. readelf sanity check
+        if re.search(r"\breadelf\b", c):
+            return "💡 [bold cyan]Insight LFS (readelf):[/bold cyan] O teste de sanidade no cabeçalho ELF verifica o interpretador de programas (/tools/lib64/ld-linux...), atestando o isolamento da toolchain."
+
+        # 13. chroot
+        if re.search(r"\bchroot\b", c):
+            return "💡 [bold cyan]Insight LFS (chroot):[/bold cyan] O diretório raiz agora é $LFS! A partir deste ponto, o sistema hospedeiro está totalmente isolado e você opera no novo Linux."
+
+        return None
 
     def _cmd_clear(self, args: List[str]) -> CommandResult:
         return CommandResult(output="", success=True, system_event="CLEAR")

@@ -92,6 +92,7 @@ class GameEngine:
             "telemetry": self.telemetry.to_dict(),
             "command_history": list(self.command_history),
             "anomaly_manager": self.anomaly_manager.to_dict(),
+            "didactic_enabled": getattr(self.parser, "didactic_enabled", True),
         }
 
     def from_dict(self, data: dict):
@@ -110,3 +111,5 @@ class GameEngine:
         self.command_history = new_history
         self.anomaly_manager = new_anomaly_manager
         self.parser = ShellParser(self)
+        if "didactic_enabled" in data:
+            self.parser.didactic_enabled = bool(data["didactic_enabled"])

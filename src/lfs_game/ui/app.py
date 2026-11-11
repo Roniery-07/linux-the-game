@@ -88,6 +88,7 @@ class LFSGameApp(App):
     BINDINGS = [
         Binding("f1", "show_book", "Manual LFS (F1)", priority=True),
         Binding("f2", "show_hint", "Missões & Dica (F2)", priority=True),
+        Binding("f3", "show_glossary", "Glossário Didático (F3)", priority=True),
         Binding("f5", "quick_save", "Salvar Jogo (F5)", priority=True),
         Binding("f10", "quit_app", "Sair (F10)", priority=True),
     ]
@@ -136,6 +137,12 @@ class LFSGameApp(App):
     def action_show_hint(self):
         term = self.query_one("#terminal-view", TerminalView)
         res = self.engine.run_command("hint")
+        from textual.widgets import RichLog
+        self.query_one("#terminal-log", RichLog).write(res.output)
+
+    def action_show_glossary(self):
+        term = self.query_one("#terminal-view", TerminalView)
+        res = self.engine.run_command("glossario")
         from textual.widgets import RichLog
         self.query_one("#terminal-log", RichLog).write(res.output)
 
