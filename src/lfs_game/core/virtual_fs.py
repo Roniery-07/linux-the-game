@@ -177,7 +177,41 @@ class VirtualFS:
         self.chroot_dir: str = "/mnt/lfs"
         self.chroot_saved_host_state: Optional[dict] = None
 
+        # Act 4 System Build & Configuration State Tracking
+        self.locales_configured: bool = False
+        self.shadow_configured: bool = False
+        self.root_password_set: bool = False
+        self.bash_restarted: bool = False
+        self.udev_updated: bool = False
+        self.debug_stripped: bool = False
+        self.system_checks_passed: Set[str] = set()
+
+        # Act 5 System Configuration, Kernel 7.1.8 & GRUB State Tracking
+        self.bootscripts_installed: bool = False
+        self.network_configured: bool = False
+        self.sysconfig_configured: bool = False
+        self.fstab_configured: bool = False
+        self.kernel_config: Dict[str, str] = self._default_kernel_config()
+        self.kernel_configured: bool = False
+        self.kernel_compiled: bool = False
+        self.kernel_installed: bool = False
+        self.grub_mbr_installed: bool = False
+        self.grub_cfg_created: bool = False
+
         self._init_standard_tree()
+
+    @staticmethod
+    def _default_kernel_config() -> Dict[str, str]:
+        """Returns the default critical kernel configuration flags for LFS 13.1."""
+        return {
+            "CONFIG_64BIT": "y",
+            "CONFIG_DEVTMPFS": "y",
+            "CONFIG_DEVTMPFS_MOUNT": "y",
+            "CONFIG_EXT4_FS": "y",
+            "CONFIG_SATA_AHCI": "y",
+            "CONFIG_BINFMT_ELF": "y",
+            "CONFIG_NET": "y",
+        }
 
     def _init_standard_tree(self):
         """Initializes standard Unix root hierarchy."""
@@ -409,6 +443,7 @@ class VirtualFS:
                 node.content = content
             node.size_bytes = len(node.content.encode("utf-8"))
             node.mtime = time.time()
+            self._refresh_act5_file_flags(abs_path)
             return True, ""
 
         parent, basename = self._get_parent_and_basename(abs_path)
@@ -427,7 +462,116 @@ class VirtualFS:
             size_bytes=len(content.encode("utf-8"))
         )
         parent.children[basename] = new_file
+        self._refresh_act5_file_flags(abs_path)
         return True, ""
+
+    def _read_chroot_file(self, chroot_path: str) -> Optional[str]:
+        """Reads a file inside the LFS system (resolved via chroot_dir if not currently in chroot)."""
+        real_path = chroot_path if self.in_chroot else posixpath.join(posixpath.normpath(self.chroot_dir), chroot_path.lstrip("/"))
+        node = self._resolve_node(chroot_path) if self.in_chroot else self._resolve_host_node(real_path)
+        if isinstance(node, VirtualFile):
+            return node.content
+        return None
+
+    def has_valid_network_config(self) -> bool:
+        """Checks whether /etc/hostname, /etc/hosts, /etc/sysconfig/ifconfig.eth0, and /etc/resolv.conf are valid."""
+        hostname = self._read_chroot_file("/etc/hostname")
+        hosts = self._read_chroot_file("/etc/hosts")
+        ifconfig = self._read_chroot_file("/etc/sysconfig/ifconfig.eth0")
+        resolv = self._read_chroot_file("/etc/resolv.conf")
+        if not all(x is not None for x in (hostname, hosts, ifconfig, resolv)):
+            return False
+        assert hostname is not None and hosts is not None and ifconfig is not None and resolv is not None
+        if not hostname.strip():
+            return False
+        if "127.0.0.1" not in hosts or "localhost" not in hosts:
+            return False
+        if not any(tok in ifconfig for tok in ("ONBOOT", "IP=", "SERVICE=", "IFACE=")):
+            return False
+        if "nameserver" not in resolv:
+            return False
+        return True
+
+    def has_valid_sysconfig(self) -> bool:
+        """Checks whether /etc/inittab, /etc/profile, /etc/inputrc, and /etc/shells are valid."""
+        inittab = self._read_chroot_file("/etc/inittab")
+        profile = self._read_chroot_file("/etc/profile")
+        inputrc = self._read_chroot_file("/etc/inputrc")
+        shells = self._read_chroot_file("/etc/shells")
+        if not all(x is not None for x in (inittab, profile, inputrc, shells)):
+            return False
+        assert inittab is not None and profile is not None and inputrc is not None and shells is not None
+        if "initdefault" not in inittab:
+            return False
+        if not profile.strip() or not inputrc.strip():
+            return False
+        if "/bin/bash" not in shells:
+            return False
+        return True
+
+    def has_valid_fstab(self) -> bool:
+        """Validates that /etc/fstab mounts /dev/sda3 on '/' and configures /dev/sda2 as swap."""
+        fstab = self._read_chroot_file("/etc/fstab")
+        if not fstab:
+            return False
+        has_root = False
+        has_swap = False
+        for raw_line in fstab.splitlines():
+            line = raw_line.strip()
+            if not line or line.startswith("#"):
+                continue
+            cols = line.split()
+            if len(cols) >= 2 and cols[0] == "/dev/sda3" and cols[1] == "/":
+                has_root = True
+            if len(cols) >= 3 and cols[0] == "/dev/sda2" and (cols[2] == "swap" or cols[1] == "swap"):
+                has_swap = True
+        return has_root and has_swap
+
+    def has_valid_kernel_installed(self) -> bool:
+        """Checks whether /boot/vmlinuz-7.1.8-lfs-13.1 exists in the LFS system."""
+        return self._read_chroot_file("/boot/vmlinuz-7.1.8-lfs-13.1") is not None
+
+    def has_valid_grub_cfg(self) -> bool:
+        """Checks whether /boot/grub/grub.cfg references vmlinuz-7.1.8-lfs-13.1 and root=/dev/sda3."""
+        grub_cfg = self._read_chroot_file("/boot/grub/grub.cfg")
+        if not grub_cfg:
+            return False
+        return "vmlinuz-7.1.8-lfs-13.1" in grub_cfg and "root=/dev/sda3" in grub_cfg
+
+    def sync_act5_state(self) -> None:
+        """Synchronizes Act 5 boolean flags from actual files present in VirtualFS."""
+        if not self.bootscripts_installed and self._read_chroot_file("/etc/rc.d/init.d/rc") is not None:
+            self.bootscripts_installed = True
+        if self.has_valid_network_config():
+            self.network_configured = True
+        if self.has_valid_sysconfig():
+            self.sysconfig_configured = True
+        if self.has_valid_fstab():
+            self.fstab_configured = True
+        if self.has_valid_kernel_installed():
+            self.kernel_installed = True
+        if self.has_valid_grub_cfg():
+            self.grub_cfg_created = True
+
+    def _refresh_act5_file_flags(self, abs_path: str) -> None:
+        """Updates Act 5 flags immediately when relevant configuration or boot files are written inside chroot."""
+        if not self.in_chroot:
+            return
+        if abs_path in ("/etc/hostname", "/etc/hosts", "/etc/sysconfig/ifconfig.eth0", "/etc/resolv.conf"):
+            if self.has_valid_network_config():
+                self.network_configured = True
+        elif abs_path in ("/etc/inittab", "/etc/profile", "/etc/inputrc", "/etc/shells"):
+            if self.has_valid_sysconfig():
+                self.sysconfig_configured = True
+        elif abs_path == "/etc/fstab":
+            if self.has_valid_fstab():
+                self.fstab_configured = True
+        elif abs_path == "/boot/vmlinuz-7.1.8-lfs-13.1":
+            if self.has_valid_kernel_installed():
+                self.kernel_installed = True
+        elif abs_path == "/boot/grub/grub.cfg":
+            if self.has_valid_grub_cfg():
+                self.grub_cfg_created = True
 
     def read_file(self, path: str) -> Tuple[bool, str]:
         """Reads content from a file."""
@@ -1069,6 +1213,23 @@ class VirtualFS:
             "in_chroot": self.in_chroot,
             "chroot_dir": self.chroot_dir,
             "chroot_saved_host_state": self.chroot_saved_host_state,
+            "locales_configured": self.locales_configured,
+            "shadow_configured": self.shadow_configured,
+            "root_password_set": self.root_password_set,
+            "bash_restarted": self.bash_restarted,
+            "udev_updated": self.udev_updated,
+            "debug_stripped": self.debug_stripped,
+            "system_checks_passed": sorted(self.system_checks_passed),
+            "bootscripts_installed": self.bootscripts_installed,
+            "network_configured": self.network_configured,
+            "sysconfig_configured": self.sysconfig_configured,
+            "fstab_configured": self.fstab_configured,
+            "kernel_config": dict(self.kernel_config),
+            "kernel_configured": self.kernel_configured,
+            "kernel_compiled": self.kernel_compiled,
+            "kernel_installed": self.kernel_installed,
+            "grub_mbr_installed": self.grub_mbr_installed,
+            "grub_cfg_created": self.grub_cfg_created,
         }
 
     @classmethod
@@ -1091,6 +1252,27 @@ class VirtualFS:
         fs.in_chroot = data.get("in_chroot", False)
         fs.chroot_dir = data.get("chroot_dir", "/mnt/lfs")
         fs.chroot_saved_host_state = data.get("chroot_saved_host_state", None)
+        fs.locales_configured = data.get("locales_configured", False)
+        fs.shadow_configured = data.get("shadow_configured", False)
+        fs.root_password_set = data.get("root_password_set", False)
+        fs.bash_restarted = data.get("bash_restarted", False)
+        fs.udev_updated = data.get("udev_updated", False)
+        fs.debug_stripped = data.get("debug_stripped", False)
+        fs.system_checks_passed = set(data.get("system_checks_passed", []))
+        fs.bootscripts_installed = data.get("bootscripts_installed", False)
+        fs.network_configured = data.get("network_configured", False)
+        fs.sysconfig_configured = data.get("sysconfig_configured", False)
+        fs.fstab_configured = data.get("fstab_configured", False)
+        default_kconfig = cls._default_kernel_config()
+        saved_kconfig = data.get("kernel_config")
+        if isinstance(saved_kconfig, dict) and saved_kconfig:
+            default_kconfig.update(saved_kconfig)
+        fs.kernel_config = default_kconfig
+        fs.kernel_configured = data.get("kernel_configured", False)
+        fs.kernel_compiled = data.get("kernel_compiled", False)
+        fs.kernel_installed = data.get("kernel_installed", False)
+        fs.grub_mbr_installed = data.get("grub_mbr_installed", False)
+        fs.grub_cfg_created = data.get("grub_cfg_created", False)
         return fs
 
     def install_tool(self, name: str, path: str, content: str = "#!/bin/sh\n# LFS virtual binary\n", mode: int = 0o755) -> bool:

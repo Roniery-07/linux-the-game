@@ -3,7 +3,7 @@
 from __future__ import annotations
 from dataclasses import dataclass
 import random
-from typing import Any, Dict, List, Optional
+from typing import Any, Dict, List, Optional, Tuple
 from .virtual_fs import VirtualFS
 from .parser import ShellParser, CommandResult
 from ..rpg.character import HackerCharacter
@@ -43,6 +43,12 @@ class GameEngine:
         self.parser = ShellParser(self)
         self.telemetry = Telemetry()
         self.command_history: List[str] = []
+        self.test_mode: bool = False
+
+    def jump_to(self, target: str) -> Tuple[bool, str]:
+        """Provisions the engine directly to an Act/Chapter sandbox target."""
+        from .sandbox import provision_target
+        return provision_target(self, target)
 
     def tick(self, delta_seconds: float = 1.0):
         """Simulation tick for telemetry and life support."""
@@ -102,6 +108,7 @@ class GameEngine:
             "command_history": list(self.command_history),
             "anomaly_manager": self.anomaly_manager.to_dict(),
             "didactic_enabled": getattr(self.parser, "didactic_enabled", True),
+            "test_mode": self.test_mode,
         }
 
     def from_dict(self, data: dict):
@@ -119,6 +126,7 @@ class GameEngine:
         self.telemetry = new_telemetry
         self.command_history = new_history
         self.anomaly_manager = new_anomaly_manager
+        self.test_mode = bool(data.get("test_mode", False))
         self.parser = ShellParser(self)
         if "didactic_enabled" in data:
             self.parser.didactic_enabled = bool(data["didactic_enabled"])
