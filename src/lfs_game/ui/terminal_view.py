@@ -14,8 +14,14 @@ if TYPE_CHECKING:
 
 COMMON_COMMANDS = [
     "help", "clear", "hint", "status", "coffee", "cafe", "lfs-book", "lfs-get-sources",
+    "lfs-status-tools", "lfs-compile-tools", "lfs-status-chroot", "lfs-compile-chroot",
+    "lfs-status-system", "lfs-compile-system", "lfs-strip", "strip",
+    "lfs-install-bootscripts", "lfs-config-network", "lfs-config-system", "lfs-check-config",
+    "lfs-kernel-config", "lfs-compile-kernel", "grub-install", "grub-mkconfig", "lfs-config-grub",
+    "pwconv", "grpconv", "passwd", "localedef", "udev-hwdb", "exec", "make", "chroot",
     "glossario", "glossary", "explain", "explicar", "oquee", "didactic", "didatico",
-    "ls", "cd", "pwd", "mkdir", "rm", "touch", "cat", "echo", "export", "env",
+    "lfs-jump", "jump", "test-act", "goto-act",
+    "ls", "cd", "pwd", "mkdir", "rm", "touch", "cat", "echo", "cp", "ln", "export", "env",
     "whoami", "su", "exit", "useradd", "groupadd", "chown", "chmod",
     "fdisk", "cfdisk", "mkfs.ext4", "mkswap", "swapon", "swapoff", "mount", "umount",
     "df", "tar", "md5sum", "pushd", "popd", "save", "load",
@@ -45,6 +51,11 @@ class TerminalView(Vertical):
 [dim]Digite '[bold green]help[/bold green]' para comandos, '[bold yellow]glossario[/bold yellow]' para conceitos ou '[bold yellow]hint[/bold yellow]' para orientações.[/dim]
 """
         log.write(banner)
+        if self.engine.test_mode:
+            log.write(
+                "[bold yellow]⚡ MODO TESTE / SANDBOX ATIVO:[/bold yellow] "
+                "Use '[bold green]lfs-jump <alvo>[/bold green]' ou pressione [bold cyan]F4[/bold cyan] para saltar entre Atos e Capítulos.\n"
+            )
         self.update_prompt_label()
         self.query_one("#terminal-input", Input).focus()
 
@@ -89,7 +100,10 @@ class TerminalView(Vertical):
         symbol = "#" if user == "root" else "$"
         color = "red" if user == "root" else "green"
 
-        log.write(f"[{color}]{user}@hera[/{color}]:[cyan]{cwd}[/cyan]{symbol} [bold white]{cmd}[/bold white]")
+        if self.engine.fs.in_chroot:
+            log.write(f"[bold yellow](lfs chroot)[/bold yellow] [{color}]{user}[/{color}]:[cyan]{cwd}[/cyan]{symbol} [bold white]{cmd}[/bold white]")
+        else:
+            log.write(f"[{color}]{user}@hera[/{color}]:[cyan]{cwd}[/cyan]{symbol} [bold white]{cmd}[/bold white]")
 
         # Execute
         result = self.engine.run_command(cmd)

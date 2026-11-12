@@ -19,6 +19,11 @@ class StoryView(Static):
         super().__init__(**kwargs)
         self.engine = engine
 
+    def refresh(self, *args, **kwargs):
+        """Force layout recalculation so quest/dialogue updates render cleanly."""
+        kwargs.setdefault("layout", True)
+        return super().refresh(*args, **kwargs)
+
     def render(self) -> Panel:
         story = self.engine.story_engine
         dlg = story.current_dialogue
