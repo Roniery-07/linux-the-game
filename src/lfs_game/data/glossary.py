@@ -32,6 +32,7 @@ CATEGORIES = [
     "Variáveis LFS",
     "Toolchain & Compiladores",
     "Conceitos do Sistema & Chroot",
+    "Sistema Final & Inicialização",
 ]
 
 
@@ -1284,6 +1285,378 @@ GLOSSARY_ENTRIES: List[GlossaryEntry] = [
         ),
         related_terms=["mkdir", "chmod", "cp", "chown"],
         aliases=["install -d", "install -m", "instalar"],
+    ),
+
+    # -------------------------------------------------------------------------
+    # Sistema Final & Inicialização (Capítulo 8 - Ato 4)
+    # -------------------------------------------------------------------------
+    GlossaryEntry(
+        term="make-check",
+        name="make check / make -k check - Execução das Suítes de Testes do Sistema",
+        category="Sistema Final & Inicialização",
+        syntax="make check   |   make -k check",
+        what_it_does=(
+            "Dispara a bateria de testes automatizados de regressão embutida no pacote recém-compilado. "
+            "A opção '-k' (--keep-going) instrui o GNU Make a não interromper a bateria caso um teste pontual falhe, "
+            "permitindo coletar o relatório completo de todos os módulos."
+        ),
+        why_in_lfs=(
+            "No Capítulo 8, os testes de Glibc, Binutils e GCC são considerados inegociáveis. Eles comprovam "
+            "que o compilador, o vinculador e a biblioteca C definitiva operam dentro do chroot sem bugs silenciosos "
+            "de ABI, alocação de memória ou aritmética de ponto flutuante."
+        ),
+        danger_if_missed=(
+            "Pular 'make check' na Glibc ou 'make -k check' no GCC pode ocultar falhas sutis de toolchain "
+            "que só explodirão horas depois ao compilar o kernel Linux ou o servidor gráfico."
+        ),
+        related_terms=["make", "readelf", "chroot"],
+        aliases=["make check", "make -k check", "check"],
+    ),
+    GlossaryEntry(
+        term="localedef",
+        name="localedef - Compilação de Arquivos de Localidade e Codificação (Locales)",
+        category="Sistema Final & Inicialização",
+        syntax="localedef -i pt_BR -f UTF-8 pt_BR.UTF-8",
+        what_it_does=(
+            "Compila definições de idioma, formatos numéricos, monetários, fuso, ordenação alfabética e "
+            "conjuntos de caracteres (como UTF-8) em arquivos binários gravados em /usr/lib/locale/locale-archive."
+        ),
+        why_in_lfs=(
+            "A instalação padrão da Glibc no LFS instala apenas o código-fonte das definições regionais, sem compilar "
+            "os arquivos binários de locale. Executar 'localedef' garante suporte completo a UTF-8 (pt_BR.UTF-8, C.UTF-8) "
+            "exigido por suítes de testes posteriores e aplicativos modernos."
+        ),
+        danger_if_missed=(
+            "Sem os locales compilados em locale-archive, programas em Python, Perl, Coreutils e suítes de teste "
+            "apresentarão avisos constantes de 'setlocale: cannot change locale' e falharão ao manipular acentos UTF-8."
+        ),
+        related_terms=["LC_ALL=POSIX", "make-check"],
+        aliases=["locales", "locale-archive", "pt_BR.UTF-8"],
+    ),
+    GlossaryEntry(
+        term="shadow",
+        name="Shadow / pwconv - Senhas Criptografadas e Controle de Contas",
+        category="Sistema Final & Inicialização",
+        syntax="pwconv && grpconv && passwd root",
+        what_it_does=(
+            "A suíte Shadow separa os metadados públicos de usuários (/etc/passwd) dos hashes secretos de senha "
+            "(/etc/shadow, legível apenas pelo root). 'pwconv' e 'grpconv' migram e sincronizam essas tabelas; "
+            "'passwd' grava o hash criptográfico da senha do usuário."
+        ),
+        why_in_lfs=(
+            "Na Seção 8.29, ativamos as senhas ocultas com 'pwconv' e 'grpconv' e definimos a senha do superusuário "
+            "com 'passwd root', garantindo autenticação segura com algoritmos modernos (yescrypt/SHA-512 via Libxcrypt)."
+        ),
+        danger_if_missed=(
+            "Sem configurar o Shadow e a senha de root, o sistema ou rejeitará o login no primeiro boot ou deixará "
+            "a conta administrativa sem proteção."
+        ),
+        related_terms=["useradd", "groupadd", "chmod"],
+        aliases=["pwconv", "grpconv", "/etc/shadow", "passwd"],
+    ),
+    GlossaryEntry(
+        term="exec",
+        name="exec - Substituição do Processo Shell Atual",
+        category="Sistema Final & Inicialização",
+        syntax="exec /usr/bin/bash --login",
+        what_it_does=(
+            "Substitui a imagem do processo atual da shell na memória pelo novo executável especificado, "
+            "preservando o PID sem criar um subprocesso filho."
+        ),
+        why_in_lfs=(
+            "Ao entrar no chroot no Capítulo 7, ainda estávamos executando o Bash temporário antigo. Logo após "
+            "compilar o Bash definitivo na Seção 8.39, executamos 'exec /usr/bin/bash --login' para aposentar o "
+            "binário temporário e passar a rodar imediatamente o novo shell nativo com Readline completo."
+        ),
+        danger_if_missed=(
+            "Continuar usando a instância antiga do Bash em memória mantém referências a bibliotecas antigas e "
+            "impede que melhorias de histórico, edição de linha e variáveis de login entrem em vigor."
+        ),
+        related_terms=["chroot", "su"],
+        aliases=["exec bash", "exec /usr/bin/bash --login"],
+    ),
+    GlossaryEntry(
+        term="openssl",
+        name="OpenSSL - Biblioteca Criptográfica e Protocolo TLS/SSL",
+        category="Sistema Final & Inicialização",
+        syntax="openssl version && openssl enc -aes-256-cbc ...",
+        what_it_does=(
+            "Fornece implementações robustas de algoritmos criptográficos (AES, ChaCha20, SHA-256, RSA, Ed25519), "
+            "geração de certificados X.509 e suporte ao protocolo TLS/SSL."
+        ),
+        why_in_lfs=(
+            "No Capítulo 8 (Seção 8.49), o OpenSSL fornece a base criptográfica da qual dependem o módulo 'ssl' "
+            "do Python 3, o Kmod, gerenciadores de pacotes, servidores SSH e a assinatura de módulos do kernel Linux."
+        ),
+        danger_if_missed=(
+            "Compilar o Python 3 ou tentar compilar o kernel Linux com assinatura de módulos sem o OpenSSL instalado "
+            "resulta em módulos ausentes e impossibilidade de estabelecer conexões seguras HTTPS/TLS."
+        ),
+        related_terms=["meson", "make-check"],
+        aliases=["tls", "ssl", "libssl"],
+    ),
+    GlossaryEntry(
+        term="meson",
+        name="Meson & Ninja - Sistema Moderno de Automação de Build",
+        category="Sistema Final & Inicialização",
+        syntax="meson setup build --prefix=/usr --buildtype=release && ninja -C build install",
+        what_it_does=(
+            "Meson é um gerador de planos de compilação escrito em Python com sintaxe declarativa limpa; Ninja é "
+            "um executor de builds de baixíssima sobrecarga focado em paralelismo máximo."
+        ),
+        why_in_lfs=(
+            "Vários pacotes modernos centrais do LFS 13.1 — incluindo Kmod e Systemd-Udev — abandonaram o "
+            "tradicional Autotools (./configure && make) em favor do par Meson + Ninja para compilações muito mais rápidas."
+        ),
+        danger_if_missed=(
+            "Sem Ninja (Tier 1) e Meson (Tier 3) instalados e operacionais com Python 3, pacotes críticos como "
+            "Kmod e Udev não podem ser configurados nem compilados."
+        ),
+        related_terms=["./configure", "make", "udev"],
+        aliases=["ninja", "meson-ninja", "meson & ninja"],
+    ),
+    GlossaryEntry(
+        term="udev",
+        name="Udev / udev-hwdb - Gerenciador Dinâmico de Dispositivos",
+        category="Sistema Final & Inicialização",
+        syntax="udev-hwdb update",
+        what_it_does=(
+            "Daemon e conjunto de utilitários que escutam eventos uevent do kernel Linux via netlink, criando "
+            "dinamicamente os nós em /dev, aplicando permissões e carregando drivers de hardware correspondentes."
+        ),
+        why_in_lfs=(
+            "Na Seção 8.77, compilamos o Udev (extraído do Systemd) e rodamos 'udev-hwdb update' para compilar o "
+            "banco de dados binário de assinaturas PCI/USB (/etc/udev/hwdb.bin) que identifica dispositivos físicos no boot."
+        ),
+        danger_if_missed=(
+            "Sem o Udev e sem o hwdb.bin atualizado, o kernel não conseguirá nomear corretamente interfaces de rede, "
+            "dispositivos USB ou partições durante a inicialização."
+        ),
+        related_terms=["/dev", "/sys", "sysvinit"],
+        aliases=["udev-hwdb", "hwdb", "udev-hwdb update"],
+    ),
+    GlossaryEntry(
+        term="sysvinit",
+        name="SysVinit - Sistema Clássico de Inicialização (PID 1)",
+        category="Sistema Final & Inicialização",
+        syntax="init [runlevel]   |   shutdown -r now",
+        what_it_does=(
+            "Implementa o primeiro processo do espaço de usuário (/sbin/init, PID 1) lançado pelo kernel ao final "
+            "do boot, responsável por ler /etc/inittab, executar os scripts de inicialização por runlevel e adotar processos órfãos."
+        ),
+        why_in_lfs=(
+            "Na edição SysV do LFS 13.1 (Seção 8.83), o SysVinit é o coração da orquestração de boot: ele monta os "
+            "sistemas de arquivos de /etc/fstab, ativa a rede, inicia o sysklogd e abre os terminais tty de login."
+        ),
+        danger_if_missed=(
+            "Sem um binário /sbin/init funcional instalado, o kernel Linux entrará em 'Kernel panic - not syncing: "
+            "No working init found' imediatamente após montar a partição raiz."
+        ),
+        related_terms=["grub", "udev", "/proc"],
+        aliases=["init", "sysv", "/sbin/init"],
+    ),
+    GlossaryEntry(
+        term="grub",
+        name="GRUB - GRand Unified Bootloader (grub-install & grub.cfg)",
+        category="Sistema Final & Inicialização",
+        syntax="grub-install /dev/sda && grub-mkconfig -o /boot/grub/grub.cfg",
+        what_it_does=(
+            "Carregador de inicialização responsável por ser ativado pelo firmware BIOS/UEFI, ler sistemas de arquivos "
+            "ext4, apresentar o menu de boot e carregar a imagem do kernel Linux (vmlinuz) na memória RAM. "
+            "O comando 'grub-install /dev/sda' grava o estágio inicial no MBR do disco e 'grub.cfg' define as entradas de menu."
+        ),
+        why_in_lfs=(
+            "Compilado na Seção 8.65 e configurado no Capítulo 10.4, o GRUB é a ponte obrigatória entre o hardware "
+            "da estação e o novo kernel LFS (/boot/vmlinuz-7.1.8-lfs-13.1 com root=/dev/sda3)."
+        ),
+        danger_if_missed=(
+            "Se o 'grub-install' não gravar o bootloader em /dev/sda ou '/boot/grub/grub.cfg' apontar para o "
+            "dispositivo raiz errado, a máquina ficará presa no prompt de firmware ou em 'grub rescue>' ao reiniciar."
+        ),
+        related_terms=["sysvinit", "bzimage", "fstab", "grub.cfg"],
+        aliases=["bootloader", "grub-install"],
+    ),
+    GlossaryEntry(
+        term="strip",
+        name="strip / lfs-strip - Remoção de Símbolos de Depuração",
+        category="Sistema Final & Inicialização",
+        syntax="strip --strip-debug /usr/lib/*   |   lfs-strip",
+        what_it_does=(
+            "Remove tabelas de símbolos de depuração DWARF e metadados desnecessários de executáveis e bibliotecas "
+            "ELF sem alterar sua lógica de execução."
+        ),
+        why_in_lfs=(
+            "Na Seção 8.85 (Stripping), binários e bibliotecas compilados com informações de debug ocupam vários gigabytes "
+            "extras. Aplicar 'strip --strip-debug' em bibliotecas e '--strip-unneeded' em binários reduz drasticamente "
+            "o uso de disco e melhora o carregamento em memória."
+        ),
+        danger_if_missed=(
+            "O sistema continua funcionando sem stripping, mas desperdiça gigabytes preciosos de armazenamento e RAM; "
+            "por outro lado, usar '--strip-all' em bibliotecas estáticas (.a) ou módulos destrói símbolos necessários ao linker!"
+        ),
+        related_terms=["readelf", "make-check", "chroot"],
+        aliases=["lfs-strip", "--strip-debug", "--strip-unneeded"],
+    ),
+    GlossaryEntry(
+        term="lfs-bootscripts",
+        name="LFS-Bootscripts - Scripts de Inicialização SysVinit",
+        category="Sistema Final & Inicialização",
+        syntax="make install   |   lfs-install-bootscripts",
+        what_it_does=(
+            "Conjunto oficial de scripts shell instalados em /etc/rc.d/* e /lib/services/* que orquestram "
+            "a subida de interfaces de rede, montagem de sistemas de arquivos, udev, syslogd e desligamento do sistema."
+        ),
+        why_in_lfs=(
+            "No Capítulo 9.2, o SysVinit (/sbin/init) precisa desses scripts para transitar entre os runlevels "
+            "durante o boot e o shutdown da estação Hera."
+        ),
+        danger_if_missed=(
+            "Sem os LFS-Bootscripts em /etc/rc.d/, o sistema iniciará sem rede, sem montagem do /etc/fstab, "
+            "sem logs do kernel e sem gerenciamento de dispositivos udev."
+        ),
+        related_terms=["inittab", "sysvinit", "hostname"],
+        aliases=["bootscripts", "lfs-install-bootscripts", "/etc/rc.d"],
+    ),
+    GlossaryEntry(
+        term="hostname",
+        name="/etc/hostname & /etc/hosts - Identidade e Resolução Local de Rede",
+        category="Sistema Final & Inicialização",
+        syntax="echo 'hera-lfs' > /etc/hostname   |   lfs-config-network [hostname]",
+        what_it_does=(
+            "Define o nome único da máquina na rede (/etc/hostname) e o mapeamento estático de endereços IP "
+            "para nomes locais como 127.0.0.1 localhost (/etc/hosts)."
+        ),
+        why_in_lfs=(
+            "No Capítulo 9.5, os bootscripts leem /etc/hostname durante o boot para configurar o nome do kernel, "
+            "enquanto /etc/hosts, /etc/resolv.conf e /etc/sysconfig/ifconfig.eth0 completam a pilha de rede."
+        ),
+        danger_if_missed=(
+            "Sem /etc/hosts configurando 127.0.0.1 localhost, daemons locais, testes de rede e resoluções de "
+            "loopback falham ou sofrem timeouts severos tentando consultar DNS externo."
+        ),
+        related_terms=["lfs-bootscripts", "inittab", "ifconfig.eth0"],
+        aliases=["/etc/hostname", "/etc/hosts", "hosts", "lfs-config-network"],
+    ),
+    GlossaryEntry(
+        term="inittab",
+        name="/etc/inittab - Tabela de Runlevels do SysVinit",
+        category="Sistema Final & Inicialização",
+        syntax="cat > /etc/inittab << \"EOF\" ... EOF   |   lfs-config-system",
+        what_it_does=(
+            "Arquivo mestre de configuração lido pelo processo PID 1 (/sbin/init). Define o nível de execução "
+            "padrão (id:3:initdefault:), os scripts de boot (rc S / rc 3) e os terminais virtuais (agetty)."
+        ),
+        why_in_lfs=(
+            "No Capítulo 9.6, o /etc/inittab conecta o SysVinit compilado no Ato 4 aos LFS-Bootscripts, "
+            "garantindo que consoles tty1-tty6 apareçam para login após o carregamento do kernel."
+        ),
+        danger_if_missed=(
+            "Se /etc/inittab estiver ausente ou sem 'initdefault', o init falhará com erro 'INIT: No inittab file found' "
+            "e deixará o sistema travado sem nenhum prompt de login!"
+        ),
+        related_terms=["sysvinit", "lfs-bootscripts", "inputrc"],
+        aliases=["/etc/inittab", "runlevel", "runlevels"],
+    ),
+    GlossaryEntry(
+        term="inputrc",
+        name="/etc/inputrc & /etc/shells - Readline e Shells de Login",
+        category="Sistema Final & Inicialização",
+        syntax="cat > /etc/inputrc << \"EOF\" ... EOF   |   lfs-config-system",
+        what_it_does=(
+            "/etc/inputrc configura a biblioteca GNU Readline (atalhos de teclado, acentuação UTF-8 e teclas "
+            "Home/End/Delete), enquanto /etc/shells lista os interpretadores de login autorizados no sistema."
+        ),
+        why_in_lfs=(
+            "Nos Capítulos 9.8 e 9.9, esses arquivos garantem que o Bash e ferramentas interativas interpretem "
+            "caracteres multibyte corretamente e que utilitários como 'su' e 'chsh' aceitem /bin/bash."
+        ),
+        danger_if_missed=(
+            "Sem /etc/inputrc, teclas como Home, End e Delete imprimem códigos estranhos (~) no terminal; "
+            "sem /etc/shells contendo /bin/bash, serviços de login e FTP rejeitam conexões de usuários."
+        ),
+        related_terms=["inittab", "hostname", "bash"],
+        aliases=["/etc/inputrc", "/etc/shells", "shells"],
+    ),
+    GlossaryEntry(
+        term="fstab",
+        name="/etc/fstab - Tabela Estática de Sistemas de Arquivos",
+        category="Sistema Final & Inicialização",
+        syntax="cat > /etc/fstab << \"EOF\" ... EOF",
+        what_it_does=(
+            "Lista todas as partições de disco, pontos de montagem, tipos de sistema de arquivos e opções "
+            "que o sistema deve montar automaticamente na inicialização (ex: /dev/sda3 em / e /dev/sda2 como swap)."
+        ),
+        why_in_lfs=(
+            "No Capítulo 10.2, o bootscript mountfs lê /etc/fstab para remontar a partição raiz em modo "
+            "leitura/escrita (rw), ativar a área de swap e montar os sistemas virtuais (/proc, /sys, /dev)."
+        ),
+        danger_if_missed=(
+            "Se /etc/fstab estiver incorreto ou ausente, o sistema ficará preso em modo somente-leitura (ro) "
+            "e incapaz de gravar logs ou iniciar serviços básicos durante o boot."
+        ),
+        related_terms=["mount", "mkfs.ext4", "swapon", "grub"],
+        aliases=["/etc/fstab", "mount-table"],
+    ),
+    GlossaryEntry(
+        term="menuconfig",
+        name="make menuconfig - Configuração do Kernel Linux (Built-in vs Módulo)",
+        category="Sistema Final & Inicialização",
+        syntax="make menuconfig   |   lfs-kernel-config [FLAG=y|m|n | apply]",
+        what_it_does=(
+            "Interface de configuração do núcleo Linux que gera o arquivo .config, permitindo escolher cada "
+            "driver como built-in [*]/[y] (embutido no kernel), módulo [M]/[m] (.ko) ou desativado [ ]/[n]."
+        ),
+        why_in_lfs=(
+            "No Capítulo 10.3, o LFS inicializa diretamente sem initramfs. Portanto, drivers críticos como "
+            "CONFIG_EXT4_FS, CONFIG_SATA_AHCI, CONFIG_DEVTMPFS, CONFIG_DEVTMPFS_MOUNT e CONFIG_BINFMT_ELF "
+            "DEVEM ser compilados como built-in [y]."
+        ),
+        danger_if_missed=(
+            "Compilar o driver do sistema de arquivos raiz (EXT4) ou da controladora SATA como módulo [m] sem "
+            "initrd resulta em 'Kernel panic - not syncing: VFS: Unable to mount root fs'!"
+        ),
+        related_terms=["bzimage", "fstab", "grub"],
+        aliases=["make menuconfig", "lfs-kernel-config", "defconfig", ".config"],
+    ),
+    GlossaryEntry(
+        term="bzimage",
+        name="bzImage / vmlinuz - Imagem Compactada do Kernel Linux",
+        category="Sistema Final & Inicialização",
+        syntax="cp -iv arch/x86/boot/bzImage /boot/vmlinuz-7.1.8-lfs-13.1",
+        what_it_does=(
+            "Arquivo binário auto-descompactável gerado ao compilar o núcleo Linux (arch/x86/boot/bzImage), "
+            "instalado em /boot/vmlinuz-7.1.8-lfs-13.1 junto com System.map-7.1.8 e config-7.1.8."
+        ),
+        why_in_lfs=(
+            "É o próprio núcleo Linux 7.1.8 que o GRUB carrega na memória RAM ao ligar a máquina. "
+            "Sem ele em /boot/, todo o trabalho dos Capítulos 2 a 9 não tem um kernel para executar."
+        ),
+        danger_if_missed=(
+            "Se o arquivo /boot/vmlinuz-7.1.8-lfs-13.1 não existir ou estiver com nome divergente do grub.cfg, "
+            "o GRUB abortará o boot com o erro 'error: file /boot/vmlinuz-7.1.8-lfs-13.1 not found'."
+        ),
+        related_terms=["menuconfig", "grub", "grub.cfg"],
+        aliases=["vmlinuz", "vmlinuz-7.1.8-lfs-13.1", "bzImage"],
+    ),
+    GlossaryEntry(
+        term="grub.cfg",
+        name="/boot/grub/grub.cfg - Arquivo de Configuração de Boot do GRUB",
+        category="Sistema Final & Inicialização",
+        syntax="grub-mkconfig -o /boot/grub/grub.cfg   |   lfs-config-grub",
+        what_it_does=(
+            "Script de configuração lido pelo GRUB na inicialização para localizar a partição de boot (hd0,3), "
+            "carregar /boot/vmlinuz-7.1.8-lfs-13.1 e passar o parâmetro 'root=/dev/sda3 ro' ao kernel."
+        ),
+        why_in_lfs=(
+            "No Capítulo 10.4, define a entrada de menu oficial do novo sistema LFS 13.1 da Estação Hera "
+            "para que o primeiro boot ocorra automaticamente."
+        ),
+        danger_if_missed=(
+            "Sem /boot/grub/grub.cfg ou com 'root=' apontando para a partição errada, o boot falhará com "
+            "prompt interativo do GRUB ou Kernel Panic ao tentar montar o sistema raiz."
+        ),
+        related_terms=["grub", "bzimage", "fstab"],
+        aliases=["grub-mkconfig", "/boot/grub/grub.cfg", "lfs-config-grub"],
     ),
 ]
 
